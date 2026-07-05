@@ -37,10 +37,17 @@ const BACKGROUNDS = [
 const sandbox = {};
 vm.createContext(sandbox);
 const dataCode = fs.readFileSync(path.join(__dirname, '..', 'src', 'js', 'data.js'), 'utf8');
-const { STORIES, PRAISES, CAST, REPEAT_PROMPT } =
-  vm.runInContext(dataCode + '\n;({ STORIES, PRAISES, CAST, REPEAT_PROMPT })', sandbox);
+const { STORIES, PRAISES, CAST, REPEAT_PROMPT, FIND_LINES, HERE_LINE, HERE_CHAMS } =
+  vm.runInContext(dataCode + '\n;({ STORIES, PRAISES, CAST, REPEAT_PROMPT, FIND_LINES, HERE_LINE, HERE_CHAMS })', sandbox);
 
 const CLIPS = [];
+// かくれんぼの声: 「Where is ~?」(ナレーター) と 「Here I am!」(そのキャラの声)
+Object.entries(FIND_LINES).forEach(([key, l]) => {
+  CLIPS.push({ file:`find_${key}.mp3`, text:l.en, voice:'Wise_Woman' });
+  const voice = key === 'chams' ? CAST.riku.voice : (CAST[key] || CAST.narrator).voice;
+  const here  = key === 'chams' ? HERE_CHAMS : HERE_LINE;
+  CLIPS.push({ file:`here_${key}.mp3`, text:here.en, voice });
+});
 STORIES.forEach((story, si) => {
   story.scenes.forEach((scene, ci) => {
     scene.lines.forEach((line, li) => {

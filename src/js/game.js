@@ -106,10 +106,30 @@ function renderShelf() {
 // ═══════════════════════════════════════════════════════════
 // 紙芝居プレイヤー
 // ═══════════════════════════════════════════════════════════
-let PL = { si:0, ci:0, li:0, playing:true, timer:null };
+let PL = { si:0, ci:0, li:0, playing:true, timer:null, phase:'talk' };
+
+// みつけた時のチャイム（Web Audio・音声ファイル不要）
+let _AC = null;
+function chime(found) {
+  try {
+    _AC = _AC || new (window.AudioContext || window.webkitAudioContext)();
+    if (_AC.state === 'suspended') _AC.resume();
+    const seq = found ? [[660,0], [880,0.09], [1320,0.18]] : [[220,0]];
+    seq.forEach(([f, d]) => {
+      const o = _AC.createOscillator(), g = _AC.createGain();
+      o.connect(g); g.connect(_AC.destination);
+      o.type = 'triangle'; o.frequency.value = f;
+      const t = _AC.currentTime + d;
+      g.gain.setValueAtTime(0.001, t);
+      g.gain.linearRampToValueAtTime(0.2, t + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 0.22);
+      o.start(t); o.stop(t + 0.25);
+    });
+  } catch (e) {}
+}
 
 function startStory(si) {
-  PL = { si, ci:0, li:0, playing:true, timer:null };
+  PL = { si, ci:0, li:0, playing:true, timer:null, phase:'talk' };
   showScreen('player');
   updateSubModeBtn();
   updateRepeatBtn();
@@ -138,6 +158,15 @@ function renderScene(andPlay) {
   $('scene-dots').innerHTML = story().scenes.map((_, i) =>
     `<span class="dot ${i === PL.ci ? 'dot-on' : i < PL.ci ? 'dot-done' : ''}"></span>`).join('');
 
+  // かくれんぼシーンなら、まず「さがす」フェーズから
+  $('seek-layer').innerHTML = '';
+  if (sc.hide && PL.phase !== 'talk-after-seek') {
+    PL.phase = 'seek';
+    renderSeek(sc);
+    return;
+  }
+  PL.phase = 'talk';
+
   // キャラクター配置
   const mkChars = (keys, side) => keys.map(k => {
     const c = CAST[k];
@@ -151,6 +180,80 @@ function renderScene(andPlay) {
   PL.li = 0;
   if (andPlay && PL.playing) PL.timer = setTimeout(() => playLine(), 700);
   else renderSubtitle(sc.lines[0], false);
+}
+
+// ─── かくれんぼ（さがすフェーズ） ───
+const HIDE_BUSHES = ['🌳', '🌿', '🪨', '🌲'];
+function renderSeek(sc) {
+  const findKey = sc.hide;
+  const find = FIND_LINES[findKey];
+  const isChams = findKey === 'chams';
+  const targets = isChams ? sc.right : [findKey];
+
+  // 主人公は左に見えている。右側は空
+  const c = CAST.heroine;
+  $('chars-left').innerHTML  = `<img src="${c.img}" class="stage-char" data-who="heroine" alt="">`;
+  $('chars-right').innerHTML = '';
+  $('stage-prop').textContent = '';
+  $('repeat-prompt').classList.add('hidden');
+
+  // かくれる場所を4つ用意して、どれか1つにターゲットが隠れる
+  const layer = $('seek-layer');
+  layer.innerHTML = '';
+  const spots = [
+    { left:'6%',  bottom:'4%'  },
+    { left:'30%', bottom:'10%' },
+    { left:'54%', bottom:'5%'  },
+    { left:'76%', bottom:'12%' },
+  ];
+  const targetSpot = Math.floor(Math.random() * spots.length);
+  const bushes = [...HIDE_BUSHES].sort(() => Math.random() - 0.5);
+
+  spots.forEach((pos, i) => {
+    const spot = document.createElement('div');
+    spot.className = 'hide-spot';
+    spot.style.left = pos.left;
+    spot.style.bottom = pos.bottom;
+    let inner = '';
+    if (i === targetSpot) {
+      // 耳や頭が ちょっとだけ みえている
+      inner = targets.map(k =>
+        `<img src="${CAST[k].img}" class="hide-char" alt="">`).join('');
+    }
+    inner += `<span class="hide-bush">${bushes[i]}</span>`;
+    spot.innerHTML = inner;
+    spot.addEventListener('click', () => {
+      if (PL.phase !== 'seek') return;
+      if (i === targetSpot) {
+        // みつけた！
+        PL.phase = 'found';
+        chime(true);
+        spot.classList.add('spot-found');
+        renderSubtitle(isChams ? { who:'riku', ...HERE_CHAMS } : { who:findKey, ...HERE_LINE }, false);
+        playAudio(`audio/here_${findKey}.mp3`, (isChams ? HERE_CHAMS : HERE_LINE).en, () => {
+          PL.timer = setTimeout(() => {
+            PL.phase = 'talk-after-seek';
+            renderScene(true);
+          }, 600);
+        });
+      } else {
+        chime(false);
+        spot.classList.remove('spot-wiggle');
+        void spot.offsetWidth;
+        spot.classList.add('spot-wiggle');
+      }
+    });
+    layer.appendChild(spot);
+  });
+
+  // 「Where is ~?」の声＋字幕＋ヒント
+  renderSubtitle({ who:'narrator', en:find.en, jp:find.jp }, false);
+  $('sub-who').textContent = '🔍';
+  playAudio(`audio/find_${findKey}.mp3`, find.en, null);
+  const hint = document.createElement('div');
+  hint.className = 'seek-hint';
+  hint.textContent = '👆 タップして さがしてね！';
+  layer.appendChild(hint);
 }
 
 function renderSubtitle(line, talking) {
@@ -167,6 +270,7 @@ function renderSubtitle(line, talking) {
 }
 
 function playLine() {
+  if (PL.phase === 'seek' || PL.phase === 'found') return; // さがし中はセリフを進めない
   clearTimeout(PL.timer);
   const lines = scene().lines;
   if (PL.li >= lines.length) { onSceneEnd(); return; }
@@ -194,6 +298,7 @@ function playLine() {
 function onSceneEnd() {
   if (PL.ci < story().scenes.length - 1) {
     PL.ci++;
+    PL.phase = 'talk'; // 次のシーンが かくれんぼなら また さがすところから
     PL.timer = setTimeout(() => renderScene(true), 500);
   } else {
     finishStory();
@@ -213,11 +318,13 @@ function gotoScene(delta) {
   const n = PL.ci + delta;
   if (n < 0 || n >= story().scenes.length) return;
   PL.ci = n;
+  PL.phase = 'talk';
   PL.playing = true; updatePlayBtn();
   renderScene(true);
 }
 
 function replayScene() {
+  PL.phase = 'talk'; // かくれんぼも もういちど
   PL.playing = true; updatePlayBtn();
   renderScene(true);
 }

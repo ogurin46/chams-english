@@ -39,7 +39,7 @@ const STORIES = [
         ],
       },
       {
-        bg:'bg_morning', left:['heroine'], right:['rabbit'], prop:'',
+        bg:'bg_morning', left:['heroine'], right:['rabbit'], prop:'', hide:'rabbit',
         lines:[
           { who:'heroine', en:'Good morning, Rabbit!',        jp:'うさちゃん、おはよう！' },
           { who:'rabbit',  en:'Good morning! How are you?',   jp:'おはよう！げんき？' },
@@ -47,7 +47,7 @@ const STORIES = [
         ],
       },
       {
-        bg:'bg_morning', left:['heroine'], right:['bear'], prop:'',
+        bg:'bg_morning', left:['heroine'], right:['bear'], prop:'', hide:'bear',
         lines:[
           { who:'heroine', en:'Good morning, Bear!',          jp:'くまくん、おはよう！' },
           { who:'bear',    en:'Good morning! How are you?',   jp:'おはよう！げんき？' },
@@ -55,7 +55,7 @@ const STORIES = [
         ],
       },
       {
-        bg:'bg_morning', left:['heroine'], right:['bird'], prop:'',
+        bg:'bg_morning', left:['heroine'], right:['bird'], prop:'', hide:'bird',
         lines:[
           { who:'heroine', en:'Good morning, Bird!',          jp:'ことりちゃん、おはよう！' },
           { who:'bird',    en:'Good morning! How are you?',   jp:'おはよう！げんき？' },
@@ -63,7 +63,7 @@ const STORIES = [
         ],
       },
       {
-        bg:'bg_morning', left:['heroine'], right:['riku','paku','mimi'], prop:'',
+        bg:'bg_morning', left:['heroine'], right:['riku','paku','mimi'], prop:'', hide:'chams',
         lines:[
           { who:'heroine', en:'Good morning, Chams!',         jp:'チャムズ、おはよう！' },
           { who:'riku',    en:'Good morning!',                jp:'おはよう！' },
@@ -102,21 +102,21 @@ const STORIES = [
         ],
       },
       {
-        bg:'bg_picnic', left:['heroine'], right:['rabbit'], prop:'🍎',
+        bg:'bg_picnic', left:['heroine'], right:['rabbit'], prop:'🍎', hide:'rabbit',
         lines:[
           { who:'rabbit',  en:'Do you like apples?',          jp:'りんごは すき？' },
           { who:'heroine', en:'Yes, I do! Yummy!',            jp:'うん、すき！おいしい！' },
         ],
       },
       {
-        bg:'bg_picnic', left:['heroine'], right:['bear'], prop:'🍯',
+        bg:'bg_picnic', left:['heroine'], right:['bear'], prop:'🍯', hide:'bear',
         lines:[
           { who:'bear',    en:'Do you like honey?',           jp:'はちみつは すき？' },
           { who:'heroine', en:'Yes, I do! Yummy!',            jp:'うん、すき！おいしい！' },
         ],
       },
       {
-        bg:'bg_picnic', left:['heroine'], right:['cat'], prop:'🐟',
+        bg:'bg_picnic', left:['heroine'], right:['cat'], prop:'🐟', hide:'cat',
         lines:[
           { who:'cat',     en:'Do you like fish?',            jp:'おさかなは すき？' },
           { who:'heroine', en:"No, I don't.",                 jp:'ううん、すきじゃないな。' },
@@ -124,14 +124,14 @@ const STORIES = [
         ],
       },
       {
-        bg:'bg_picnic', left:['heroine'], right:['panda'], prop:'🥕',
+        bg:'bg_picnic', left:['heroine'], right:['panda'], prop:'🥕', hide:'panda',
         lines:[
           { who:'heroine', en:'Do you like carrots?',         jp:'にんじんは すき？' },
           { who:'panda',   en:"No, I don't. I like bamboo!",  jp:'ううん。ぼくは たけのこが すき！' },
         ],
       },
       {
-        bg:'bg_picnic', left:['heroine'], right:['paku'], prop:'🍌',
+        bg:'bg_picnic', left:['heroine'], right:['paku'], prop:'🍌', hide:'paku',
         lines:[
           { who:'paku',    en:'Do you like bananas?',         jp:'バナナは すき？' },
           { who:'heroine', en:'Yes, I do!',                   jp:'うん、すき！' },
@@ -163,7 +163,7 @@ const STORIES = [
         ],
       },
       {
-        bg:'bg_flower', left:['heroine'], right:['mimi'], prop:'🌹',
+        bg:'bg_flower', left:['heroine'], right:['mimi'], prop:'🌹', hide:'mimi',
         lines:[
           { who:'mimi',    en:'Look! What is this?',          jp:'みて！これは なに？' },
           { who:'heroine', en:"It's a flower!",               jp:'おはなだよ！' },
@@ -172,7 +172,7 @@ const STORIES = [
         ],
       },
       {
-        bg:'bg_flower', left:['heroine'], right:['riku'], prop:'🍎',
+        bg:'bg_flower', left:['heroine'], right:['riku'], prop:'🍎', hide:'riku',
         lines:[
           { who:'riku',    en:'What is this?',                jp:'これは なに？' },
           { who:'heroine', en:"It's an apple!",               jp:'りんごだよ！' },
@@ -181,21 +181,21 @@ const STORIES = [
         ],
       },
       {
-        bg:'bg_flower', left:['heroine'], right:['bird'], prop:'☀️',
+        bg:'bg_flower', left:['heroine'], right:['bird'], prop:'☀️', hide:'bird',
         lines:[
           { who:'bird',    en:'What color is the sun?',       jp:'おひさまは なにいろ？' },
           { who:'heroine', en:"It's yellow!",                 jp:'きいろだよ！' },
         ],
       },
       {
-        bg:'bg_flower', left:['heroine'], right:['paku'], prop:'💙',
+        bg:'bg_flower', left:['heroine'], right:['paku'], prop:'💙', hide:'paku',
         lines:[
           { who:'paku',    en:'What color is the sky?',       jp:'おそらは なにいろ？' },
           { who:'heroine', en:"It's blue!",                   jp:'あおだよ！' },
         ],
       },
       {
-        bg:'bg_flower', left:['heroine'], right:['fox'], prop:'🍀',
+        bg:'bg_flower', left:['heroine'], right:['fox'], prop:'🍀', hide:'fox',
         lines:[
           { who:'fox',     en:'What color is the leaf?',      jp:'はっぱは なにいろ？' },
           { who:'heroine', en:"It's green!",                  jp:'みどりだよ！' },
@@ -213,6 +213,23 @@ const STORIES = [
     ],
   },
 ];
+
+// ─── かくれんぼ の こえ ───
+// さがすとき: 「Where is ~?」 / みつけたとき: 「Here I am!」
+const FIND_LINES = {
+  rabbit: { en:'Where is Rabbit?',     jp:'うさちゃんは どこかな？' },
+  bear:   { en:'Where is Bear?',       jp:'くまくんは どこかな？' },
+  bird:   { en:'Where is Bird?',       jp:'ことりちゃんは どこかな？' },
+  cat:    { en:'Where is Cat?',        jp:'ねこちゃんは どこかな？' },
+  panda:  { en:'Where is Panda?',      jp:'ぱんださんは どこかな？' },
+  fox:    { en:'Where is Fox?',        jp:'きつねくんは どこかな？' },
+  riku:   { en:'Where is Riku?',       jp:'リクは どこかな？' },
+  paku:   { en:'Where is Paku?',       jp:'パクは どこかな？' },
+  mimi:   { en:'Where is Mimi?',       jp:'ミミは どこかな？' },
+  chams:  { en:'Where are the Chams?', jp:'チャムズは どこかな？' },
+};
+const HERE_LINE  = { en:'Here I am!',  jp:'ここだよ！' };
+const HERE_CHAMS = { en:'Here we are!', jp:'ここだよ！' };
 
 // ─── おわりの ほめことば（ランダムで1つ再生） ───
 const PRAISES = [
