@@ -31,14 +31,30 @@ const BACKGROUNDS = [
   { file:'bg_morning.png', prompt:'sunrise morning forest clearing, golden sunlight rays through trees, dew on grass, soft pink and orange sky' + BG_STYLE },
   { file:'bg_picnic.png',  prompt:'sunny green meadow with a red checkered picnic blanket, blue sky with fluffy clouds, flowers around' + BG_STYLE },
   { file:'bg_flower.png',  prompt:'colorful flower field with a small walking path, bright daytime, butterflies far away, blue sky' + BG_STYLE },
+  { file:'bg_shop.png',    prompt:'cute cozy little shop interior for children, wooden counter at the bottom, colorful shelves, warm lights, candy colors' + BG_STYLE },
+];
+
+// キャラクター画像（透過つき）
+const CHAR_STYLE = ', bright cheerful anime style for young children, solid flat cel shading, ' +
+  'thick crisp clean outlines, big sparkling eyes, friendly smile, front view full body centered, ' +
+  'no smoke, no fog, plain pure white background, kawaii';
+const CHARACTERS = [
+  { file:'cust_dino.png',     prompt:'full body of a cute chibi green baby dinosaur standing on two feet, round belly, tiny arms' + CHAR_STYLE },
+  { file:'cust_unicorn.png',  prompt:'full body of a cute chibi white unicorn with rainbow mane, golden horn, standing' + CHAR_STYLE },
+  { file:'cust_princess.png', prompt:'full body of a cute chibi little princess girl, golden crown, puffy pink dress, standing' + CHAR_STYLE },
+  { file:'cust_robot.png',    prompt:'full body of a cute chibi round friendly robot, light blue metal body, antenna, standing' + CHAR_STYLE },
+  { file:'cust_ghost.png',    prompt:'full body of a cute chibi friendly little ghost, round white floating body, rosy cheeks, playful smile' + CHAR_STYLE },
+  { file:'part_tail.png',     prompt:'a single cartoon fluffy animal tail, orange with white tip, curved, simple sticker style, thick outlines, plain pure white background, nothing else in frame' },
 ];
 
 // ─── data.js からセリフを収集 ───
 const sandbox = {};
 vm.createContext(sandbox);
 const dataCode = fs.readFileSync(path.join(__dirname, '..', 'src', 'js', 'data.js'), 'utf8');
-const { STORIES, PRAISES, CAST, REPEAT_PROMPT, FIND_LINES, HERE_LINE, HERE_CHAMS } =
-  vm.runInContext(dataCode + '\n;({ STORIES, PRAISES, CAST, REPEAT_PROMPT, FIND_LINES, HERE_LINE, HERE_CHAMS })', sandbox);
+const { STORIES, PRAISES, CAST, REPEAT_PROMPT, FIND_LINES, HERE_LINE, HERE_CHAMS,
+        HENSHIN_LINES, HENSHIN_PUZZLES, SHOP_CUSTOMERS, SHOP_FIXED, SHOP_CUST_LINES, SHOP_EPISODES } =
+  vm.runInContext(dataCode + '\n;({ STORIES, PRAISES, CAST, REPEAT_PROMPT, FIND_LINES, HERE_LINE, HERE_CHAMS, ' +
+    'HENSHIN_LINES, HENSHIN_PUZZLES, SHOP_CUSTOMERS, SHOP_FIXED, SHOP_CUST_LINES, SHOP_EPISODES })', sandbox);
 
 const CLIPS = [];
 // かくれんぼの声: 「Where is ~?」(ナレーター) と 「Here I am!」(そのキャラの声)
@@ -61,6 +77,32 @@ STORIES.forEach((story, si) => {
 });
 PRAISES.forEach((p, i) => CLIPS.push({ file:`praise_${i}.mp3`, text:p.en, voice:'Wise_Woman' }));
 CLIPS.push({ file:'repeat_prompt.mp3', text:REPEAT_PROMPT.en, voice:'Wise_Woman' });
+
+// へんしんマジックの声
+Object.entries(HENSHIN_LINES).forEach(([key, l]) =>
+  CLIPS.push({ file:`henshin_${key}.mp3`, text:l.en, voice:l.voice }));
+HENSHIN_PUZZLES.forEach((p, i) => {
+  CLIPS.push({ file:`henshin_q_${i}.mp3`, text:p.q.en, voice:'Wise_Woman' });
+  CLIPS.push({ file:`henshin_a_${i}.mp3`, text:p.a.en, voice:'Lively_Girl' });
+});
+
+// おみせやさんの声
+Object.entries(SHOP_FIXED).forEach(([key, l]) =>
+  CLIPS.push({ file:`shop_${key}.mp3`, text:l.en, voice:l.voice }));
+Object.entries(SHOP_CUSTOMERS).forEach(([ck, cust]) => {
+  Object.entries(SHOP_CUST_LINES).forEach(([lk, l]) => {
+    const text = lk === 'hello' ? `Hello! I'm ${cust.en}!` : l.en;
+    CLIPS.push({ file:`shop_${lk}_${ck}.mp3`, text, voice:cust.voice });
+  });
+});
+SHOP_EPISODES.forEach((ep, ei) => {
+  const cust = SHOP_CUSTOMERS[ep.customer];
+  CLIPS.push({ file:`shop_order_${ei}.mp3`, text:ep.order.en, voice:cust.voice });
+  ep.happening.lines.forEach((l, li) => {
+    const voice = l.who === 'cust' ? cust.voice : l.who === 'heroine' ? 'Lively_Girl' : 'Wise_Woman';
+    CLIPS.push({ file:`shop_hap_${ei}_${li}.mp3`, text:l.en, voice });
+  });
+});
 
 const HEADERS = {
   'Authorization': `Bearer ${API_KEY}`,
@@ -102,6 +144,16 @@ async function download(url, outPath) {
   fs.writeFileSync(outPath, Buffer.from(await res.arrayBuffer()));
 }
 
+async function getRembgVersion() {
+  const res = await fetch('https://api.replicate.com/v1/models/cjwbw/rembg', {
+    headers: { 'Authorization': `Bearer ${API_KEY}` }
+  });
+  if (!res.ok) return 'fb8af171cfa1616ddcf1242c093f9c46bcada5ad4cf6f2fbe8b81b330ec5c003';
+  const data = await res.json();
+  return data.latest_version?.id
+    || 'fb8af171cfa1616ddcf1242c093f9c46bcada5ad4cf6f2fbe8b81b330ec5c003';
+}
+
 async function main() {
   console.log(`🔑 APIキー: ${API_KEY.slice(0, 6)}...${API_KEY.slice(-4)}`);
   console.log(`🖼️ 背景 ${BACKGROUNDS.length} 枚 / 🔊 セリフ ${CLIPS.length} 本\n`);
@@ -123,6 +175,31 @@ async function main() {
       console.log('✅');
     } catch (e) { console.log(`❌ ${e.message}`); }
     await new Promise(r => setTimeout(r, 13000));
+  }
+
+  // ── キャラクター画像（背景透過つき） ──
+  const needChars = CHARACTERS.filter(c => !fs.existsSync(path.join(IMG_DIR, c.file)));
+  if (needChars.length) {
+    const rembgVersion = await getRembgVersion();
+    for (const c of needChars) {
+      process.stdout.write(`🧸 ${c.file.padEnd(20)} `);
+      try {
+        const out1 = await waitForResult(await fetchWithRetry(
+          'https://api.replicate.com/v1/models/black-forest-labs/flux-schnell/predictions',
+          { method:'POST', headers:HEADERS, body: JSON.stringify({ input:{
+            prompt: c.prompt, num_outputs:1, aspect_ratio:'1:1',
+            output_format:'png', output_quality:100 } }) }
+        ));
+        const imgUrl = Array.isArray(out1) ? out1[0] : String(out1);
+        const out2 = await waitForResult(await fetchWithRetry(
+          'https://api.replicate.com/v1/predictions',
+          { method:'POST', headers:HEADERS, body: JSON.stringify({ version: rembgVersion, input:{ image: imgUrl } }) }
+        ));
+        await download(Array.isArray(out2) ? out2[0] : String(out2), path.join(IMG_DIR, c.file));
+        console.log('✅');
+      } catch (e) { console.log(`❌ ${String(e.message).slice(0, 60)}`); }
+      await new Promise(r => setTimeout(r, 13000));
+    }
   }
 
   // ── セリフ音声 ──

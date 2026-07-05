@@ -86,8 +86,20 @@ function renderShelf() {
 
   const list = $('story-list');
   list.innerHTML = '';
+  const starsOf = key => {
+    const n = S.done[key] || 0;
+    return n ? '⭐'.repeat(Math.min(n, 3)) + (n > 3 ? `×${n}` : '') : '';
+  };
+  const addSection = (title) => {
+    const h = document.createElement('p');
+    h.className = 'shelf-section';
+    h.textContent = title;
+    list.appendChild(h);
+  };
+
+  // ── 紙芝居 ──
+  addSection('📖 おはなし');
   STORIES.forEach((st, si) => {
-    const doneCount = S.done[st.id] || 0;
     const card = document.createElement('button');
     card.className = 'story-card';
     card.innerHTML = `
@@ -97,8 +109,42 @@ function renderShelf() {
         <span class="story-title-jp">${st.jpTitle}</span>
         <span class="story-learn">${st.learn.map(l => `<i>${l}</i>`).join('')}</span>
       </span>
-      <span class="story-stars">${doneCount ? '⭐'.repeat(Math.min(doneCount, 3)) + (doneCount > 3 ? `×${doneCount}` : '') : ''}</span>`;
+      <span class="story-stars">${starsOf(st.id)}</span>`;
     card.addEventListener('click', () => { unlockAudio(); startStory(si); });
+    list.appendChild(card);
+  });
+
+  // ── へんしんマジック ──
+  addSection('🪄 へんしんマジック');
+  const hCard = document.createElement('button');
+  hCard.className = 'story-card';
+  hCard.innerHTML = `
+    <span class="story-emoji">🪄</span>
+    <span class="story-info">
+      <span class="story-title-en">What's Wrong?</span>
+      <span class="story-title-jp">まほうが しっぱい！おかしいところを さがそう</span>
+      <span class="story-learn"><i>Where is the tail?</i><i>ears</i><i>nose</i><i>feet</i></span>
+    </span>
+    <span class="story-stars">${starsOf('henshin')}</span>`;
+  hCard.addEventListener('click', () => { unlockAudio(); startHenshin(); });
+  list.appendChild(hCard);
+
+  // ── おみせやさん ──
+  addSection('🏪 おみせやさん');
+  SHOP_EPISODES.forEach((ep, ei) => {
+    const cust = SHOP_CUSTOMERS[ep.customer];
+    const card = document.createElement('button');
+    card.className = 'story-card';
+    card.innerHTML = `
+      <img src="${cust.img}" class="story-cust-img" alt=""
+           onerror="this.outerHTML='<span class=story-emoji>${ep.emoji}</span>'">
+      <span class="story-info">
+        <span class="story-title-en">Welcome, ${cust.en}!</span>
+        <span class="story-title-jp">だい${ei + 1}わ ${cust.name}が くる（${ep.themeJp}）</span>
+        <span class="story-learn"><i>What would you like?</i><i>I'd like ~, please!</i></span>
+      </span>
+      <span class="story-stars">${starsOf(ep.id)}</span>`;
+    card.addEventListener('click', () => { unlockAudio(); startShop(ei); });
     list.appendChild(card);
   });
 }
@@ -129,7 +175,7 @@ function chime(found) {
 }
 
 function startStory(si) {
-  PL = { si, ci:0, li:0, playing:true, timer:null, phase:'talk' };
+  PL = { si, ci:0, li:0, playing:true, timer:null, phase:'talk', mode:'story' };
   showScreen('player');
   updateSubModeBtn();
   updateRepeatBtn();
@@ -305,16 +351,31 @@ function onSceneEnd() {
   }
 }
 
-// ─── コントロール ───
+// ─── コントロール（モードごとに動きを変える） ───
 function togglePlay() {
   PL.playing = !PL.playing;
   updatePlayBtn();
-  if (PL.playing) playLine();
-  else { clearTimeout(PL.timer); stopAudio(); }
+  if (PL.playing) {
+    if (PL.mode === 'story')        playLine();
+    else if (PL.mode === 'henshin') renderHenshinRound();
+    else if (PL.mode === 'shop')    runShopStep();
+  } else { clearTimeout(PL.timer); stopAudio(); }
 }
 function updatePlayBtn() { $('btn-playpause').textContent = PL.playing ? '⏸' : '▶️'; }
 
 function gotoScene(delta) {
+  if (PL.mode === 'henshin') {
+    const n = HS.ri + delta;
+    if (n < 0 || n >= HS.rounds.length) return;
+    HS.ri = n; PL.playing = true; updatePlayBtn();
+    renderHenshinRound();
+    return;
+  }
+  if (PL.mode === 'shop') {
+    if (delta > 0) { SH.i++; PL.playing = true; updatePlayBtn(); runShopStep(); }
+    else startShop(SH.ei);
+    return;
+  }
   const n = PL.ci + delta;
   if (n < 0 || n >= story().scenes.length) return;
   PL.ci = n;
@@ -324,8 +385,10 @@ function gotoScene(delta) {
 }
 
 function replayScene() {
-  PL.phase = 'talk'; // かくれんぼも もういちど
   PL.playing = true; updatePlayBtn();
+  if (PL.mode === 'henshin') { renderHenshinRound(); return; }
+  if (PL.mode === 'shop')    { startShop(SH.ei); return; }
+  PL.phase = 'talk'; // かくれんぼも もういちど
   renderScene(true);
 }
 
@@ -350,6 +413,272 @@ function updateRepeatBtn() {
   const b = $('btn-repeatmode');
   b.textContent = '🎤 まねっこ';
   b.classList.toggle('mode-on', S.repeatMode);
+}
+
+// ═══════════════════════════════════════════════════════════
+// シリーズ①「チャムズの へんしんマジック」
+// ═══════════════════════════════════════════════════════════
+let HS = { rounds:[], ri:0 };
+
+function startHenshin() {
+  PL = { ...PL, mode:'henshin', playing:true };
+  HS = { rounds:[...HENSHIN_PUZZLES.keys()].sort(() => Math.random() - 0.5).slice(0, 5), ri:0 };
+  showScreen('player');
+  $('player-title').textContent = '🪄 へんしんマジック';
+  updateSubModeBtn(); updateRepeatBtn(); updatePlayBtn();
+  renderHenshinRound();
+}
+
+function partHTML(part, cls) {
+  return part === 'tail'
+    ? `<img src="img/part_tail.png" class="hen-part hen-part-img ${cls}">`
+    : `<span class="hen-part ${cls}">${part}</span>`;
+}
+
+function renderHenshinRound() {
+  clearTimeout(PL.timer);
+  stopAudio();
+  const pi = HS.rounds[HS.ri];
+  const p  = HENSHIN_PUZZLES[pi];
+  const stage = $('stage');
+  stage.classList.remove('page-flip'); void stage.offsetWidth; stage.classList.add('page-flip');
+
+  $('stage-bg').src = 'img/bg_flower.png';
+  $('scene-dots').innerHTML = HS.rounds.map((_, i) =>
+    `<span class="dot ${i === HS.ri ? 'dot-on' : i < HS.ri ? 'dot-done' : ''}"></span>`).join('');
+  $('chars-left').innerHTML = `<img src="${CAST.mimi.img}" class="stage-char" data-who="mimi" alt="">`;
+  $('chars-right').innerHTML = '';
+  $('stage-prop').textContent = '';
+  $('repeat-prompt').classList.add('hidden');
+
+  const layer = $('seek-layer');
+  layer.innerHTML = '';
+
+  // ①ミミが じゅもんを となえる
+  setSub('ミミ', HENSHIN_LINES.spell.en, HENSHIN_LINES.spell.jp);
+  talk('mimi', true);
+  playAudio('audio/henshin_spell.mp3', HENSHIN_LINES.spell.en, () => {
+    talk('mimi', false);
+    // まほうの ひかり
+    const flash = document.createElement('div');
+    flash.className = 'magic-flash';
+    layer.appendChild(flash);
+    PL.timer = setTimeout(() => {
+      flash.remove();
+      // ②へんしんした どうぶつ登場（パーツが へんな ばしょに！）
+      const wrap = document.createElement('div');
+      wrap.className = 'hen-wrap';
+      wrap.innerHTML = `
+        <img src="${CAST[p.animal].img}" class="hen-animal" alt="">
+        ${partHTML(p.part, 'hen-wiggle')}`;
+      layer.appendChild(wrap);
+      const partEl = wrap.querySelector('.hen-part');
+      partEl.style.left = p.wrongPos.left;
+      partEl.style.top  = p.wrongPos.top;
+
+      const hint = document.createElement('div');
+      hint.className = 'seek-hint';
+      hint.textContent = '👆 おかしいところを タップ！';
+      layer.appendChild(hint);
+
+      setSub('🔍', HENSHIN_LINES.wrong.en, HENSHIN_LINES.wrong.jp);
+      playAudio('audio/henshin_wrong.mp3', HENSHIN_LINES.wrong.en, null);
+
+      // ③おかしいパーツを タップ！
+      partEl.addEventListener('click', () => {
+        if (partEl.dataset.done) return;
+        partEl.dataset.done = '1';
+        chime(true);
+        hint.remove();
+        partEl.classList.remove('hen-wiggle');
+        // ④「Where are the ears?」→「They are on the feet!」
+        setSub('🔍', p.q.en, p.q.jp);
+        playAudio(`audio/henshin_q_${pi}.mp3`, p.q.en, () => {
+          setSub('わたし', p.a.en, p.a.jp);
+          playAudio(`audio/henshin_a_${pi}.mp3`, p.a.en, () => {
+            // ⑤パーツが ただしい ばしょへ もどる
+            partEl.classList.add('hen-fly');
+            partEl.style.left = p.fixPos.left;
+            partEl.style.top  = p.fixPos.top;
+            PL.timer = setTimeout(() => {
+              partEl.classList.add('hen-fixed');
+              chime(true);
+              setSub('ミミ', HENSHIN_LINES.fixed.en, HENSHIN_LINES.fixed.jp);
+              playAudio('audio/henshin_fixed.mp3', HENSHIN_LINES.fixed.en, () => {
+                PL.timer = setTimeout(nextHenshinRound, 700);
+              });
+            }, 900);
+          });
+        });
+      });
+    }, 700);
+  });
+}
+
+function nextHenshinRound() {
+  if (HS.ri < HS.rounds.length - 1) { HS.ri++; renderHenshinRound(); }
+  else finishSession('henshin');
+}
+
+// ═══════════════════════════════════════════════════════════
+// シリーズ②「チャムズの おみせやさん」
+// ═══════════════════════════════════════════════════════════
+let SH = { ei:0, script:[], i:0 };
+
+function buildShopScript(ei) {
+  const ep = SHOP_EPISODES[ei];
+  const ck = ep.customer;
+  const cust = SHOP_CUSTOMERS[ck];
+  const seq = [];
+  const L = (file, who, en, jp) => seq.push({ type:'line', file, who, en, jp });
+
+  seq.push({ type:'knock' });
+  L(`shop_hello_${ck}`, 'cust', `Hello! I'm ${cust.en}!`, `こんにちは！${cust.name}だよ！`);
+  L('shop_meet',        'riku', SHOP_FIXED.meet.en,    SHOP_FIXED.meet.jp);
+  L(`shop_meet2_${ck}`, 'cust', SHOP_CUST_LINES.meet2.en, SHOP_CUST_LINES.meet2.jp);
+  L('shop_orderQ',      'riku', SHOP_FIXED.orderQ.en,  SHOP_FIXED.orderQ.jp);
+  L(`shop_order_${ei}`, 'cust', ep.order.en,           ep.order.jp);
+  seq.push({ type:'pick' });
+  L('shop_here',        'riku', SHOP_FIXED.here.en,    SHOP_FIXED.here.jp);
+  L(`shop_thanks_${ck}`,'cust', SHOP_CUST_LINES.thanks.en, SHOP_CUST_LINES.thanks.jp);
+  L('shop_welcome',     'riku', SHOP_FIXED.welcome.en, SHOP_FIXED.welcome.jp);
+  seq.push({ type:'anim', anim: ep.happening.anim });
+  ep.happening.lines.forEach((l, li) => {
+    const who = l.who === 'cust' ? 'cust' : l.who;
+    L(`shop_hap_${ei}_${li}`, who, l.en, l.jp);
+  });
+  L(`shop_bye_${ck}`,   'cust', SHOP_CUST_LINES.bye.en, SHOP_CUST_LINES.bye.jp);
+  L('shop_see',         'riku', SHOP_FIXED.see.en,     SHOP_FIXED.see.jp);
+  return seq;
+}
+
+function startShop(ei) {
+  PL = { ...PL, mode:'shop', playing:true };
+  SH = { ei, script: buildShopScript(ei), i:0 };
+  showScreen('player');
+  const cust = SHOP_CUSTOMERS[SHOP_EPISODES[ei].customer];
+  $('player-title').textContent = `🏪 おみせやさん だい${ei + 1}わ`;
+  updateSubModeBtn(); updateRepeatBtn(); updatePlayBtn();
+
+  // 舞台: 左＝店員リク、右＝お客さん（あとで入店）
+  const stage = $('stage');
+  stage.classList.remove('page-flip'); void stage.offsetWidth; stage.classList.add('page-flip');
+  $('stage-bg').src = 'img/bg_shop.png';
+  $('scene-dots').innerHTML = '';
+  $('chars-left').innerHTML = `<img src="${CAST.riku.img}" class="stage-char" data-who="riku" alt="">`;
+  $('chars-right').innerHTML = '';
+  $('stage-prop').textContent = '';
+  $('seek-layer').innerHTML = '';
+  $('repeat-prompt').classList.add('hidden');
+  runShopStep();
+}
+
+function runShopStep() {
+  clearTimeout(PL.timer);
+  if (SH.i >= SH.script.length) { finishSession(SHOP_EPISODES[SH.ei].id); return; }
+  const st = SH.script[SH.i];
+  const ep = SHOP_EPISODES[SH.ei];
+  const cust = SHOP_CUSTOMERS[ep.customer];
+
+  if (st.type === 'knock') {
+    const layer = $('seek-layer');
+    layer.innerHTML = '<div class="shop-door">🚪</div>';
+    setSub('📖', SHOP_FIXED.knock.en, SHOP_FIXED.knock.jp);
+    playAudio('audio/shop_knock.mp3', SHOP_FIXED.knock.en, () => {
+      layer.innerHTML = '';
+      // お客さん入店！
+      $('chars-right').innerHTML =
+        `<img src="${cust.img}" class="stage-char shop-enter" data-who="cust" alt="">`;
+      PL.timer = setTimeout(() => { SH.i++; runShopStep(); }, 900);
+    });
+    return;
+  }
+
+  if (st.type === 'line') {
+    const label = st.who === 'cust' ? cust.name : st.who === 'riku' ? 'リク'
+                : st.who === 'heroine' ? 'わたし' : '📖';
+    setSub(label, st.en, st.jp);
+    talk(st.who, true);
+    playAudio(`audio/${st.file}.mp3`, st.en, () => {
+      talk(st.who, false);
+      if (!PL.playing) return;
+      PL.timer = setTimeout(() => { SH.i++; runShopStep(); }, 650);
+    });
+    return;
+  }
+
+  if (st.type === 'pick') {
+    // 注文の品を こどもが えらぶ！
+    const layer = $('seek-layer');
+    layer.innerHTML = '';
+    const row = document.createElement('div');
+    row.className = 'shop-items';
+    ep.items.forEach((item, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'shop-item';
+      btn.textContent = item;
+      btn.addEventListener('click', () => {
+        if (i === ep.order.itemIdx) {
+          chime(true);
+          btn.classList.add('item-correct');
+          [...row.children].forEach(c => { if (c !== btn) c.classList.add('item-off'); });
+          PL.timer = setTimeout(() => { layer.innerHTML = ''; SH.i++; runShopStep(); }, 800);
+        } else {
+          chime(false);
+          btn.classList.remove('item-wrong'); void btn.offsetWidth;
+          btn.classList.add('item-wrong');
+          playAudio(`audio/shop_no_${ep.customer}.mp3`, SHOP_CUST_LINES.no.en, null);
+          setSub(cust.name, SHOP_CUST_LINES.no.en, SHOP_CUST_LINES.no.jp);
+        }
+      });
+      row.appendChild(btn);
+    });
+    layer.appendChild(row);
+    const hint = document.createElement('div');
+    hint.className = 'seek-hint';
+    hint.textContent = '👆 ちゅうもんの しなものは どれかな？';
+    layer.appendChild(hint);
+    setSub(cust.name, ep.order.en, ep.order.jp);
+    return; // タップ待ち
+  }
+
+  if (st.type === 'anim') {
+    $('stage').classList.remove('anim-shake', 'anim-fly');
+    void $('stage').offsetWidth;
+    $('stage').classList.add(st.anim === 'fly' ? 'anim-fly' : 'anim-shake');
+    PL.timer = setTimeout(() => { SH.i++; runShopStep(); }, 600);
+    return;
+  }
+}
+
+// ─── 共通: 字幕・トーク表示 ───
+function setSub(label, en, jp) {
+  $('sub-who').textContent = label;
+  const subEn = $('sub-en'), subJp = $('sub-jp');
+  subEn.textContent = S.subMode !== 'jp' ? en : '';
+  subJp.textContent = S.subMode !== 'en' ? jp : '';
+  subEn.classList.toggle('hidden', S.subMode === 'jp');
+  subJp.classList.toggle('hidden', S.subMode === 'en');
+}
+function talk(who, on) {
+  document.querySelectorAll('.stage-char').forEach(el =>
+    el.classList.toggle('talking', on && el.dataset.who === who));
+}
+
+// ─── セッション共通のおわり（へんしん・おみせ） ───
+function finishSession(key) {
+  stopAudio();
+  clearTimeout(PL.timer);
+  S.done[key] = (S.done[key] || 0) + 1;
+  save();
+  const praiseIdx = Math.floor(Math.random() * PRAISES.length);
+  const praise = PRAISES[praiseIdx];
+  $('finish-praise-en').textContent = praise.en;
+  $('finish-praise-jp').textContent = S.subMode === 'en' ? '' : praise.jp;
+  $('finish-stars').textContent = '⭐'.repeat(Math.min(S.done[key], 3));
+  spawnConfetti();
+  $('overlay-finish').classList.remove('hidden');
+  playAudio(`audio/praise_${praiseIdx}.mp3`, praise.en, null);
 }
 
 // ─── おはなし おわり ───
@@ -426,7 +755,12 @@ function initEvents() {
   $('btn-submode').onclick      = cycleSubMode;
   $('btn-repeatmode').onclick   = toggleRepeatMode;
 
-  $('btn-finish-again').onclick = () => { $('overlay-finish').classList.add('hidden'); startStory(PL.si); };
+  $('btn-finish-again').onclick = () => {
+    $('overlay-finish').classList.add('hidden');
+    if (PL.mode === 'henshin')   startHenshin();
+    else if (PL.mode === 'shop') startShop(SH.ei);
+    else                         startStory(PL.si);
+  };
   $('btn-finish-done').onclick  = () => renderShelf();
 
   $('btn-phrases').onclick       = showPhrases;

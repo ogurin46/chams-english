@@ -401,6 +401,129 @@ h1 {
   padding: 9px 0 max(12px, env(safe-area-inset-bottom));
 }
 
+/* ── 本棚のセクション見出し・お客さんサムネ ── */
+.shelf-section {
+  font-size: 0.85rem; font-weight: 900; color: var(--plum);
+  background: rgba(255,255,255,0.8);
+  border-radius: 50px; padding: 5px 14px;
+  align-self: flex-start;
+  margin-top: 4px;
+}
+.story-cust-img {
+  width: 52px; height: 52px; object-fit: contain; flex-shrink: 0;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.2));
+}
+
+/* ── へんしんマジック ── */
+.magic-flash {
+  position: absolute; inset: 0;
+  background: radial-gradient(circle, rgba(255,255,200,0.95), rgba(255,180,240,0.6), transparent);
+  animation: magicFlash 0.7s ease-out forwards;
+  z-index: 5;
+}
+@keyframes magicFlash {
+  0%   { opacity: 0; transform: scale(0.3); }
+  40%  { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.4); }
+}
+.hen-wrap {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -46%);
+  width: 62%; max-width: 260px;
+  aspect-ratio: 1;
+  pointer-events: auto;
+}
+.hen-animal {
+  width: 100%; height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 14px rgba(0,0,0,0.3));
+  animation: witnessIn 0.5s ease-out;
+}
+.hen-part {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-size: 2.3rem; line-height: 1;
+  cursor: pointer;
+  filter: drop-shadow(0 3px 6px rgba(0,0,0,0.35));
+  z-index: 3;
+}
+.hen-part-img { width: 26%; height: auto; }
+.hen-wiggle { animation: partWiggle 1.1s ease-in-out infinite; }
+@keyframes partWiggle {
+  0%,100% { transform: translate(-50%,-50%) rotate(-10deg) scale(1); }
+  50%      { transform: translate(-50%,-50%) rotate(10deg)  scale(1.15); }
+}
+.hen-fly { transition: left 0.9s cubic-bezier(0.34,1.3,0.64,1), top 0.9s cubic-bezier(0.34,1.3,0.64,1); }
+.hen-fixed { animation: fixedPop 0.5s ease-out; }
+@keyframes fixedPop {
+  0%   { transform: translate(-50%,-50%) scale(1.6); }
+  100% { transform: translate(-50%,-50%) scale(1); }
+}
+
+/* ── おみせやさん ── */
+.shop-door {
+  position: absolute;
+  left: 50%; top: 42%;
+  transform: translate(-50%, -50%);
+  font-size: 5.2rem;
+  animation: doorKnock 0.5s ease-in-out 2;
+}
+@keyframes doorKnock {
+  0%,100% { transform: translate(-50%,-50%) rotate(0); }
+  30%      { transform: translate(-52%,-50%) rotate(-4deg); }
+  70%      { transform: translate(-48%,-50%) rotate(4deg); }
+}
+.shop-enter { animation: shopEnter 0.8s ease-out; }
+@keyframes shopEnter {
+  from { transform: translateX(90px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+.shop-items {
+  position: absolute;
+  left: 50%; top: 34%;
+  transform: translateX(-50%);
+  display: flex; gap: 12px;
+  pointer-events: auto;
+}
+.shop-item {
+  min-width: 74px; height: 74px;
+  padding: 0 10px;
+  font-size: 2.1rem;
+  background: rgba(255,255,255,0.94);
+  border: 3px solid var(--line);
+  border-radius: 18px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  transition: transform 0.1s;
+  letter-spacing: -6px;
+  font-family: inherit;
+}
+.shop-item:active { transform: scale(0.92); }
+.shop-item.item-correct {
+  border-color: var(--gold);
+  box-shadow: 0 0 20px rgba(232,137,12,0.8);
+  animation: fixedPop 0.5s ease-out;
+}
+.shop-item.item-off { opacity: 0.3; }
+.shop-item.item-wrong { animation: chamNo 0.4s ease-out; }
+@keyframes chamNo {
+  0%,100% { transform: translateX(0); }
+  25%      { transform: translateX(-7px); }
+  75%      { transform: translateX(7px); }
+}
+.anim-shake { animation: stageShake 0.6s ease-in-out; }
+@keyframes stageShake {
+  0%,100% { transform: translateX(0); }
+  20%,60%  { transform: translateX(-8px); }
+  40%,80%  { transform: translateX(8px); }
+}
+.anim-fly .stage-prop, .anim-fly .shop-items { animation: flyUp 1.2s ease-in-out; }
+@keyframes flyUp {
+  0%,100% { transform: translateX(-50%) translateY(0); }
+  50%      { transform: translateX(-50%) translateY(-40px) rotate(8deg); }
+}
+
 /* ── オーバーレイ ── */
 .overlay {
   position: absolute; inset: 0; z-index: 50;
