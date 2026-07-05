@@ -1,0 +1,422 @@
+/* ═══════════════════════════════════════════════
+   チャムズと えいごの おはなし
+   テーマ: あかるい 絵本のせかい
+   ═══════════════════════════════════════════════ */
+
+:root {
+  --green:   #2f7d4f;
+  --green-l: #6cc98f;
+  --pink:    #ff6db6;
+  --gold:    #e8890c;
+  --plum:    #3d3020;
+  --plum-l:  #7a6a50;
+  --card:    rgba(255,255,255,0.92);
+  --line:    rgba(47,125,79,0.35);
+}
+
+* {
+  margin: 0; padding: 0; box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  -webkit-user-select: none; user-select: none;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: #cfe8c5;
+  font-family: "Hiragino Maru Gothic Pro","M PLUS Rounded 1c","Noto Sans JP",sans-serif;
+  color: var(--plum);
+}
+
+#app {
+  width: 100%; max-width: 430px;
+  height: 100svh;
+  margin: 0 auto;
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(rgba(255,255,240,0.25), rgba(255,255,240,0.35)),
+    url('img/bg_forest.png') center / cover no-repeat;
+}
+@media (min-width: 431px) {
+  #app { box-shadow: 0 0 0 1px rgba(255,255,255,0.5), 0 0 60px rgba(110,190,120,0.4); }
+}
+
+.screen {
+  width: 100%; height: 100%;
+  display: flex; flex-direction: column;
+  align-items: center;
+  position: absolute; inset: 0;
+  overflow: hidden;
+}
+.hidden { display: none !important; }
+
+/* ── ボタン ── */
+.big-btn {
+  padding: 15px 32px;
+  background: linear-gradient(135deg, #2f9d5f, #1d7a68);
+  border: none; border-radius: 50px;
+  font-size: 1.05rem; font-weight: 900; color: #fff;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(47,125,79,0.45);
+  transition: transform 0.1s;
+  width: 88%; max-width: 360px;
+  font-family: inherit;
+}
+.big-btn:active { transform: scale(0.95); }
+.sub-btn {
+  padding: 11px 26px;
+  background: rgba(255,255,255,0.9);
+  border: 1.5px solid var(--line);
+  border-radius: 50px;
+  font-size: 0.95rem; font-weight: bold; color: var(--plum-l);
+  cursor: pointer; font-family: inherit;
+}
+.icon-btn {
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  border-radius: 16px;
+  color: var(--plum); font-size: 1.3rem;
+  padding: 8px 20px; cursor: pointer;
+  line-height: 1.3; font-family: inherit;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+}
+.icon-btn small { font-size: 0.62rem; font-weight: bold; }
+.ctrl-btn {
+  min-width: 44px; height: 44px;
+  background: var(--card);
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  font-size: 1.15rem; cursor: pointer;
+  font-family: inherit; color: var(--plum);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+.ctrl-btn:active { transform: scale(0.93); }
+.ctrl-main { min-width: 56px; font-size: 1.35rem; }
+.ctrl-wide { font-size: 0.72rem; font-weight: 900; padding: 0 8px; }
+.mode-on {
+  background: #ffe08a;
+  border-color: var(--gold);
+  box-shadow: 0 0 12px rgba(232,137,12,0.5);
+}
+
+/* ── タイトル ── */
+.title-inner {
+  width: 100%; height: 100%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: space-between;
+  padding: 6vh 0 5vh;
+  cursor: pointer;
+}
+.title-logo {
+  text-align: center;
+  background: rgba(255,255,255,0.85);
+  border-radius: 24px;
+  padding: 16px 26px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+}
+.title-pre {
+  font-size: 0.88rem; color: var(--gold);
+  font-weight: 900; margin-bottom: 6px;
+}
+h1 {
+  font-size: 2.0rem; font-weight: 900; line-height: 1.3;
+  background: linear-gradient(135deg, #1d9a50, #0d7ab0);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.title-sub {
+  font-size: 0.95rem; color: var(--plum-l); margin-top: 6px;
+  letter-spacing: 0.12em; font-weight: bold;
+}
+.title-chars {
+  position: relative;
+  width: 100%; flex: 1;
+  display: flex; align-items: flex-end; justify-content: center;
+  min-height: 0;
+}
+.t-heroine {
+  height: min(36vh, 290px);
+  object-fit: contain;
+  filter: drop-shadow(0 6px 18px rgba(0,0,0,0.25));
+  animation: floaty 3s ease-in-out infinite;
+  z-index: 2;
+}
+.t-cham {
+  position: absolute;
+  height: min(12vh, 95px);
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.2));
+  animation: floaty 3s ease-in-out infinite;
+}
+.t-c1 { left: 9%;  bottom: 12%; animation-delay: 0.4s; }
+.t-c2 { right: 9%; bottom: 15%; animation-delay: 0.9s; }
+.t-c3 { right: 20%; bottom: 0;  animation-delay: 1.4s; }
+@keyframes floaty {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-10px); }
+}
+.tap-hint {
+  font-size: 1.05rem; font-weight: 900; color: var(--plum);
+  background: rgba(255,255,255,0.88);
+  border-radius: 50px; padding: 9px 24px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  animation: tapPulse 1.4s ease-in-out infinite;
+}
+@keyframes tapPulse {
+  0%,100% { opacity: 1; }
+  50%      { opacity: 0.45; }
+}
+
+/* ── 本棚 ── */
+.shelf-header {
+  width: 94%;
+  display: flex; align-items: center; gap: 10px;
+  margin-top: 12px;
+  padding: 9px 14px;
+  background: var(--card);
+  border: 2px solid var(--line);
+  border-radius: 18px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+}
+.shelf-face {
+  width: 46px; height: 46px; object-fit: contain;
+  border-radius: 50%; background: #ffe9f4;
+}
+.shelf-title { flex: 1; font-size: 1.02rem; font-weight: 900; }
+.shelf-stars { font-size: 0.9rem; font-weight: 900; color: var(--gold); white-space: nowrap; }
+#story-list {
+  flex: 1; width: 92%; max-width: 410px;
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  display: flex; flex-direction: column; gap: 12px;
+  padding: 12px 0;
+  min-height: 0;
+}
+.story-card {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--card);
+  border: 2.5px solid var(--line);
+  border-radius: 20px;
+  padding: 15px 14px;
+  cursor: pointer; text-align: left;
+  color: var(--plum); font-family: inherit;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.12);
+  transition: transform 0.1s;
+}
+.story-card:active { transform: scale(0.97); }
+.story-emoji { font-size: 2.3rem; flex-shrink: 0; }
+.story-info { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+.story-title-en { font-weight: 900; font-size: 1.05rem; color: #1d7a3f; }
+.story-title-jp { font-size: 0.78rem; color: var(--plum-l); font-weight: bold; }
+.story-learn { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
+.story-learn i {
+  font-style: normal; font-size: 0.62rem; font-weight: 900;
+  background: #eaf6ee; color: #1d7a3f;
+  border-radius: 8px; padding: 2px 7px;
+}
+.story-stars { font-size: 0.85rem; color: var(--gold); font-weight: 900; white-space: nowrap; }
+.shelf-footer {
+  width: 100%;
+  display: flex; justify-content: center; gap: 14px;
+  padding: 8px 0 max(14px, env(safe-area-inset-bottom));
+}
+
+/* ── 紙芝居プレイヤー ── */
+.player-top {
+  width: 96%;
+  display: flex; align-items: center; gap: 10px;
+  margin-top: 8px;
+  padding: 5px 8px;
+  background: var(--card);
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  z-index: 5;
+}
+.player-title { flex: 1; font-weight: 900; font-size: 0.92rem; }
+.scene-dots { display: flex; gap: 4px; }
+.dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: rgba(0,0,0,0.15);
+}
+.dot-on   { background: var(--pink); transform: scale(1.3); }
+.dot-done { background: var(--green-l); }
+
+#stage {
+  position: relative;
+  width: 96%;
+  flex: 1; min-height: 0;
+  margin-top: 8px;
+  border-radius: 22px;
+  overflow: hidden;
+  border: 3px solid #fff;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.22);
+  background: #dfeedd;
+}
+.page-flip { animation: pageFlip 0.55s ease-out; }
+@keyframes pageFlip {
+  0%   { transform: perspective(800px) rotateY(-70deg); opacity: 0; }
+  100% { transform: perspective(800px) rotateY(0);      opacity: 1; }
+}
+.stage-bg {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+.stage-prop {
+  position: absolute; top: 8%; left: 50%;
+  transform: translateX(-50%);
+  font-size: 3.4rem;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.25));
+  animation: propFloat 2.6s ease-in-out infinite;
+  z-index: 3;
+}
+@keyframes propFloat {
+  0%,100% { transform: translateX(-50%) translateY(0); }
+  50%      { transform: translateX(-50%) translateY(-9px); }
+}
+.chars {
+  position: absolute; bottom: 3%;
+  display: flex; align-items: flex-end; gap: 2px;
+  z-index: 2;
+}
+.chars-left  { left: 3%; }
+.chars-right { right: 3%; flex-direction: row-reverse; }
+.stage-char {
+  height: 15vh; max-height: 130px;
+  object-fit: contain;
+  filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3));
+  transition: transform 0.2s;
+}
+.chars-left .stage-char:nth-child(n+2),
+.chars-right .stage-char:nth-child(n+2) { height: 11vh; max-height: 95px; }
+.stage-char.talking {
+  animation: talkBounce 0.55s ease-in-out infinite;
+  filter: drop-shadow(0 0 14px rgba(255,255,120,0.95)) drop-shadow(0 5px 10px rgba(0,0,0,0.3));
+}
+@keyframes talkBounce {
+  0%,100% { transform: translateY(0) scale(1.06); }
+  50%      { transform: translateY(-8px) scale(1.06); }
+}
+.repeat-prompt {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 6px;
+  background: rgba(255,235,140,0.55);
+  font-size: 1.25rem; font-weight: 900; color: #7a4a00;
+  text-shadow: 0 0 10px #fff, 0 0 18px #fff;
+  z-index: 6; cursor: pointer;
+  animation: tapPulse 1.2s ease-in-out infinite;
+}
+.repeat-sub { font-size: 0.75rem; }
+
+.subtitle-card {
+  width: 96%;
+  background: var(--card);
+  border: 2px solid var(--line);
+  border-radius: 18px;
+  margin-top: 8px;
+  padding: 9px 14px 11px;
+  text-align: center;
+  min-height: 5.4em;
+  position: relative;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.12);
+}
+.sub-who {
+  position: absolute; top: -11px; left: 14px;
+  font-size: 0.68rem; font-weight: 900; color: #fff;
+  background: var(--green);
+  border-radius: 10px; padding: 2px 10px;
+}
+.sub-en { font-size: 1.15rem; font-weight: 900; color: #14522e; line-height: 1.45; }
+.sub-jp { font-size: 0.82rem; font-weight: bold; color: var(--plum-l); margin-top: 3px; line-height: 1.4; }
+
+.player-controls {
+  width: 96%;
+  display: flex; justify-content: center; gap: 7px;
+  padding: 9px 0 max(12px, env(safe-area-inset-bottom));
+}
+
+/* ── オーバーレイ ── */
+.overlay {
+  position: absolute; inset: 0; z-index: 50;
+  background: rgba(30,45,25,0.5);
+  display: flex; align-items: center; justify-content: center;
+  padding: 18px;
+}
+.overlay-content {
+  width: 100%; max-width: 390px;
+  max-height: 92%;
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  background: linear-gradient(160deg, #fffef6, #f0fbf0);
+  border: 3px solid var(--line);
+  border-radius: 24px;
+  padding: 24px 18px;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  text-align: center;
+  animation: overlayIn 0.28s cubic-bezier(0.34,1.4,0.64,1);
+  position: relative;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+}
+@keyframes overlayIn {
+  from { transform: scale(0.8); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+#finish-confetti {
+  position: absolute; inset: 0;
+  pointer-events: none; overflow: hidden;
+}
+.confetti-piece { position: absolute; border-radius: 3px; }
+@keyframes confettiFall {
+  from { transform: translateY(0) rotate(0); opacity: 1; }
+  to   { transform: translateY(80vh) rotate(var(--rot, 360deg)); opacity: 0; }
+}
+.finish-stamp {
+  font-size: 1.9rem; font-weight: 900;
+  color: #ff3d7e;
+  animation: stampIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes stampIn {
+  from { transform: scale(3); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+.finish-stars { font-size: 2.1rem; }
+.finish-en { font-size: 1.1rem; font-weight: 900; color: #14522e; }
+.finish-jp { font-size: 0.85rem; font-weight: bold; color: var(--plum-l); }
+
+/* ことばカード */
+.phrases-content { max-height: 88%; }
+.phrases-header {
+  width: 100%;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.phrases-title { font-size: 1.1rem; font-weight: 900; }
+.phrases-sub { font-size: 0.76rem; color: var(--plum-l); font-weight: bold; }
+#phrase-list {
+  width: 100%;
+  display: flex; flex-direction: column; gap: 6px;
+  overflow-y: auto;
+}
+.phrase-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px;
+  background: #fff;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  padding: 9px 12px;
+  cursor: pointer; font-family: inherit; color: var(--plum);
+  text-align: left;
+}
+.phrase-row:active { background: #eaf6ee; }
+.phrase-texts { display: flex; flex-direction: column; gap: 1px; flex: 1; }
+.phrase-en { font-size: 0.92rem; font-weight: 900; color: #14522e; }
+.phrase-jp { font-size: 0.72rem; color: var(--plum-l); font-weight: bold; }
+.phrase-play { font-size: 1rem; flex-shrink: 0; }
+
+/* ── 小さい画面 ── */
+@media (max-height: 700px) {
+  .stage-char { height: 13vh; }
+  .sub-en { font-size: 1.02rem; }
+  h1 { font-size: 1.7rem; }
+}

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#2f7d4f">
+  <link rel="apple-touch-icon" href="img/icon-192.png">
+  <title>チャムズと えいごの おはなし</title>
+  <link rel="stylesheet" href="style.css?v=1">
+</head>
+<body>
+<div id="app">
+
+  <!-- ① タイトル -->
+  <section id="screen-title" class="screen">
+    <div class="title-inner">
+      <div class="title-logo">
+        <p class="title-pre">🎧 きいて まねして おぼえよう！</p>
+        <h1>チャムズと<br>えいごの おはなし</h1>
+        <p class="title-sub">English Story Time</p>
+      </div>
+      <div class="title-chars">
+        <img src="img/riku.png" class="t-cham t-c1" alt="">
+        <img src="img/heroine.png" class="t-heroine" alt="">
+        <img src="img/mimi.png" class="t-cham t-c2" alt="">
+        <img src="img/paku.png" class="t-cham t-c3" alt="">
+      </div>
+      <p class="tap-hint">✨ タップして はじめる ✨</p>
+    </div>
+  </section>
+
+  <!-- ② 本棚（おはなし選択） -->
+  <section id="screen-shelf" class="screen hidden">
+    <div class="shelf-header">
+      <img src="img/heroine_face.png" class="shelf-face" alt="">
+      <h2 class="shelf-title">📚 おはなしを えらんでね</h2>
+      <span id="shelf-stars" class="shelf-stars"></span>
+    </div>
+    <div id="story-list"></div>
+    <div class="shelf-footer">
+      <button id="btn-phrases" class="icon-btn">💬<br><small>ことばカード</small></button>
+    </div>
+  </section>
+
+  <!-- ③ 紙芝居プレイヤー -->
+  <section id="screen-player" class="screen hidden">
+    <div class="player-top">
+      <button id="btn-player-close" class="ctrl-btn">✕</button>
+      <span id="player-title" class="player-title"></span>
+      <div id="scene-dots" class="scene-dots"></div>
+    </div>
+
+    <div id="stage">
+      <img id="stage-bg" class="stage-bg" src="" alt="">
+      <div id="stage-prop" class="stage-prop"></div>
+      <div id="chars-left"  class="chars chars-left"></div>
+      <div id="chars-right" class="chars chars-right"></div>
+      <div id="repeat-prompt" class="repeat-prompt hidden">
+        🎤 まねして いってみよう！
+        <span class="repeat-sub">（タップで つぎへ）</span>
+      </div>
+    </div>
+
+    <div class="subtitle-card">
+      <span id="sub-who" class="sub-who"></span>
+      <p id="sub-en" class="sub-en"></p>
+      <p id="sub-jp" class="sub-jp"></p>
+    </div>
+
+    <div class="player-controls">
+      <button id="btn-prev" class="ctrl-btn">⏮</button>
+      <button id="btn-replay" class="ctrl-btn">🔁</button>
+      <button id="btn-playpause" class="ctrl-btn ctrl-main">⏸</button>
+      <button id="btn-next" class="ctrl-btn">⏭</button>
+      <button id="btn-submode" class="ctrl-btn ctrl-wide">🔤 EN＋日</button>
+      <button id="btn-repeatmode" class="ctrl-btn ctrl-wide">🎤 まねっこ</button>
+    </div>
+  </section>
+
+  <!-- おはなし おわり -->
+  <div id="overlay-finish" class="overlay hidden">
+    <div class="overlay-content">
+      <div id="finish-confetti"></div>
+      <p class="finish-stamp">🎉 The End 🎉</p>
+      <p id="finish-stars" class="finish-stars"></p>
+      <p id="finish-praise-en" class="finish-en"></p>
+      <p id="finish-praise-jp" class="finish-jp"></p>
+      <button id="btn-finish-again" class="big-btn">🔁 もういちど きく</button>
+      <button id="btn-finish-done" class="sub-btn">📚 ほんだなへ</button>
+    </div>
+  </div>
+
+  <!-- ことばカード -->
+  <div id="overlay-phrases" class="overlay hidden">
+    <div class="overlay-content phrases-content">
+      <div class="phrases-header">
+        <button id="btn-phrases-close" class="ctrl-btn">✕</button>
+        <p class="phrases-title">💬 ことばカード</p>
+        <div style="width:40px"></div>
+      </div>
+      <p class="phrases-sub">タップすると きけるよ！なんども れんしゅう しよう！</p>
+      <div id="phrase-list"></div>
+    </div>
+  </div>
+
+</div>
+<script src="js/data.js?v=1"></script>
+<script src="js/game.js?v=1"></script>
+</body>
+</html>
