@@ -253,37 +253,105 @@ function lineAudioPath(storyIdx, sceneIdx, lineIdx) {
 
 // ═══════════════════════════════════════════════════════════
 // シリーズ①「チャムズの へんしんマジック」
-//   まほうが しっぱいして からだの パーツが へんな ばしょに！
-//   おかしいところを タップ →「Where are the ears?」で なおす
+//   まほうが しっぱいして べつの どうぶつの パーツが ついちゃった！
+//   3択クイズで どこが おかしいか えらぼう
 // ═══════════════════════════════════════════════════════════
 const HENSHIN_LINES = {
-  spell: { en:'Abracadabra!',          jp:'えいっ！',                       voice:'Sweet_Girl_2'  },
-  wrong: { en:"Oh no! What's wrong?",  jp:'あれれ！？どこか おかしいよ！', voice:'Wise_Woman'    },
-  fixed: { en:'Ta-da! All better!',    jp:'じゃーん！なおったよ！',         voice:'Sweet_Girl_2'  },
+  spell: { en:'Abracadabra!',              jp:'えいっ！',                       voice:'Sweet_Girl_2' },
+  wrong: { en:"Oh no! Something's wrong!", jp:'あれれ！？どこか へんだよ！',   voice:'Wise_Woman'   },
 };
 
-// pos は ステージ内の % 座標（left, top）
+// wrongImg: gen_henshin.js で生成する画像
+// choices[correct] が 正解
 const HENSHIN_PUZZLES = [
-  { animal:'rabbit',  part:'👂👂', q:{ en:'Where are the ears?',  jp:'おみみは どこ？' },   a:{ en:'They are on the feet!', jp:'あしに ついてる！' },
-    wrongPos:{ left:'50%', top:'86%' }, fixPos:{ left:'50%', top:'4%' } },
-  { animal:'bear',    part:'👃',   q:{ en:'Where is the nose?',   jp:'おはなは どこ？' },   a:{ en:"It's on the tummy!",    jp:'おなかに ついてる！' },
-    wrongPos:{ left:'50%', top:'64%' }, fixPos:{ left:'50%', top:'28%' } },
-  { animal:'cat',     part:'tail', q:{ en:'Where is the tail?',   jp:'しっぽは どこ？' },   a:{ en:"It's on the head!",     jp:'あたまに ついてる！' },
-    wrongPos:{ left:'50%', top:'2%' },  fixPos:{ left:'82%', top:'70%' } },
-  { animal:'bird',    part:'🪽🪽', q:{ en:'Where are the wings?', jp:'つばさは どこ？' },   a:{ en:'They are on the head!', jp:'あたまに ついてる！' },
-    wrongPos:{ left:'50%', top:'2%' },  fixPos:{ left:'50%', top:'50%' } },
-  { animal:'dog',     part:'👄',   q:{ en:'Where is the mouth?',  jp:'おくちは どこ？' },   a:{ en:"It's on the head!",     jp:'あたまの うえに ついてる！' },
-    wrongPos:{ left:'50%', top:'2%' },  fixPos:{ left:'50%', top:'40%' } },
-  { animal:'panda',   part:'🦶🦶', q:{ en:'Where are the feet?',  jp:'あしは どこ？' },     a:{ en:'They are on the head!', jp:'あたまに ついてる！' },
-    wrongPos:{ left:'50%', top:'2%' },  fixPos:{ left:'50%', top:'90%' } },
-  { animal:'fox',     part:'👂👂', q:{ en:'Where are the ears?',  jp:'おみみは どこ？' },   a:{ en:'They are on the tail!', jp:'しっぽに ついてる！' },
-    wrongPos:{ left:'80%', top:'70%' }, fixPos:{ left:'50%', top:'4%' } },
-  { animal:'penguin', part:'🪽🪽', q:{ en:'Where are the wings?', jp:'つばさは どこ？' },   a:{ en:'They are on the feet!', jp:'あしに ついてる！' },
-    wrongPos:{ left:'50%', top:'88%' }, fixPos:{ left:'50%', top:'48%' } },
-  { animal:'dolphin', part:'tail', q:{ en:'Where is the tail?',   jp:'しっぽは どこ？' },   a:{ en:"It's on the head!",     jp:'あたまに ついてる！' },
-    wrongPos:{ left:'50%', top:'2%' },  fixPos:{ left:'20%', top:'75%' } },
-  { animal:'turtle',  part:'👃',   q:{ en:'Where is the nose?',   jp:'おはなは どこ？' },   a:{ en:"It's on the back!",     jp:'こうらに ついてる！' },
-    wrongPos:{ left:'78%', top:'40%' }, fixPos:{ left:'42%', top:'38%' } },
+  { // p0: うさぎ + ゾウのはな
+    wrongImg: 'img/hen_p0.png',
+    q: { en: "What's wrong with this rabbit?",   jp: 'このうさぎ どこが へんかな？' },
+    a: { en: 'It has an elephant trunk!',         jp: 'ゾウのはなが ついてる！' },
+    choices: [
+      { en: 'elephant trunk', jp: 'ゾウのはな'       },
+      { en: 'long ears',      jp: 'ながいミミ'       },
+      { en: 'fluffy tail',    jp: 'フワフワしっぽ'   },
+    ],
+    correct: 0,
+  },
+  { // p1: とり + キツネのしっぽ
+    wrongImg: 'img/hen_p1.png',
+    q: { en: "What's wrong with this bird?",     jp: 'このとり どこが へんかな？' },
+    a: { en: 'It has a fox tail!',               jp: 'キツネのしっぽが ついてる！' },
+    choices: [
+      { en: 'tiny wings',   jp: 'ちいさいはね'       },
+      { en: 'fox tail',     jp: 'キツネのしっぽ'     },
+      { en: 'orange beak',  jp: 'オレンジのくちばし' },
+    ],
+    correct: 1,
+  },
+  { // p2: クマ + うさぎのミミ
+    wrongImg: 'img/hen_p2.png',
+    q: { en: "What's wrong with this bear?",     jp: 'このクマ どこが へんかな？' },
+    a: { en: 'It has rabbit ears!',              jp: 'うさぎのミミが ついてる！' },
+    choices: [
+      { en: 'round belly',  jp: 'まるいおなか'   },
+      { en: 'big paws',     jp: 'おおきいてあし' },
+      { en: 'rabbit ears',  jp: 'うさぎのミミ'   },
+    ],
+    correct: 2,
+  },
+  { // p3: ねこ + さかなのしっぽ
+    wrongImg: 'img/hen_p3.png',
+    q: { en: "What's wrong with this cat?",      jp: 'このねこ どこが へんかな？' },
+    a: { en: 'It has a fish tail!',              jp: 'さかなのしっぽが ついてる！' },
+    choices: [
+      { en: 'fish tail',    jp: 'さかなのしっぽ' },
+      { en: 'whiskers',     jp: 'ひげ'           },
+      { en: 'pointy ears',  jp: 'とがったミミ'   },
+    ],
+    correct: 0,
+  },
+  { // p4: いぬ + とりのはね
+    wrongImg: 'img/hen_p4.png',
+    q: { en: "What's wrong with this dog?",      jp: 'このいぬ どこが へんかな？' },
+    a: { en: 'It has bird wings!',               jp: 'とりのはねが ついてる！' },
+    choices: [
+      { en: 'wagging tail', jp: 'ゆれるしっぽ'   },
+      { en: 'bird wings',   jp: 'とりのはね'     },
+      { en: 'floppy ears',  jp: 'たれたミミ'     },
+    ],
+    correct: 1,
+  },
+  { // p5: ペンギン + キリンのくび
+    wrongImg: 'img/hen_p5.png',
+    q: { en: "What's wrong with this penguin?",  jp: 'このペンギン どこが へんかな？' },
+    a: { en: 'It has a giraffe neck!',           jp: 'キリンのくびが ついてる！' },
+    choices: [
+      { en: 'giraffe neck',   jp: 'キリンのくび'   },
+      { en: 'flippers',       jp: 'てびれ'         },
+      { en: 'tuxedo pattern', jp: 'えんびふくがら' },
+    ],
+    correct: 0,
+  },
+  { // p6: カエル + うまのあし
+    wrongImg: 'img/hen_p6.png',
+    q: { en: "What's wrong with this frog?",     jp: 'このカエル どこが へんかな？' },
+    a: { en: 'It has horse legs!',               jp: 'うまのあしが ついてる！' },
+    choices: [
+      { en: 'big eyes',    jp: 'おおきいめ'   },
+      { en: 'horse legs',  jp: 'うまのあし'   },
+      { en: 'green skin',  jp: 'みどりのかわ' },
+    ],
+    correct: 1,
+  },
+  { // p7: パンダ + ゾウのミミ
+    wrongImg: 'img/hen_p7.png',
+    q: { en: "What's wrong with this panda?",    jp: 'このパンダ どこが へんかな？' },
+    a: { en: 'It has elephant ears!',            jp: 'ゾウのミミが ついてる！' },
+    choices: [
+      { en: 'black patches',  jp: 'くろいもよう' },
+      { en: 'round belly',    jp: 'まるいおなか' },
+      { en: 'elephant ears',  jp: 'ゾウのミミ'   },
+    ],
+    correct: 2,
+  },
 ];
 
 // ═══════════════════════════════════════════════════════════

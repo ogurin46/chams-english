@@ -455,12 +455,6 @@ function startHenshin() {
   renderHenshinRound();
 }
 
-function partHTML(part, cls) {
-  return part === 'tail'
-    ? `<img src="img/part_tail.png" class="hen-part hen-part-img ${cls}">`
-    : `<span class="hen-part ${cls}">${part}</span>`;
-}
-
 function renderHenshinRound() {
   clearTimeout(PL.timer);
   stopAudio();
@@ -491,52 +485,50 @@ function renderHenshinRound() {
     layer.appendChild(flash);
     PL.timer = setTimeout(() => {
       flash.remove();
-      // ②へんしんした どうぶつ登場（パーツが へんな ばしょに！）
-      const wrap = document.createElement('div');
-      wrap.className = 'hen-wrap';
-      wrap.innerHTML = `
-        <img src="${CAST[p.animal].img}" class="hen-animal" alt="">
-        ${partHTML(p.part, 'hen-wiggle')}`;
-      layer.appendChild(wrap);
-      const partEl = wrap.querySelector('.hen-part');
-      partEl.style.left = p.wrongPos.left;
-      partEl.style.top  = p.wrongPos.top;
 
+      // ②へんな どうぶつ 登場
+      const imgWrap = document.createElement('div');
+      imgWrap.className = 'hen-img-wrap';
+      imgWrap.innerHTML = `<img src="${p.wrongImg}" class="hen-wrong-img" alt="">`;
+      layer.appendChild(imgWrap);
+
+      // ③「どれが へんかな？」ヒント
       const hint = document.createElement('div');
-      hint.className = 'seek-hint';
-      hint.textContent = '👆 おかしいところを タップ！';
+      hint.className = 'seek-hint hen-hint';
+      hint.textContent = '👆 どれが へんかな？ タップして えらんでね！';
       layer.appendChild(hint);
 
-      setSub('🔍', HENSHIN_LINES.wrong.en, HENSHIN_LINES.wrong.jp);
-      playAudio('audio/henshin_wrong.mp3', HENSHIN_LINES.wrong.en, null);
-
-      // ③おかしいパーツを タップ！
-      partEl.addEventListener('click', () => {
-        if (partEl.dataset.done) return;
-        partEl.dataset.done = '1';
-        chime(true);
-        hint.remove();
-        partEl.classList.remove('hen-wiggle');
-        // ④「Where are the ears?」→「They are on the feet!」
-        setSub('🔍', p.q.en, p.q.jp);
-        playAudio(`audio/henshin_q_${pi}.mp3`, p.q.en, () => {
-          setSub('わたし', p.a.en, p.a.jp);
-          playAudio(`audio/henshin_a_${pi}.mp3`, p.a.en, () => {
-            // ⑤パーツが ただしい ばしょへ もどる
-            partEl.classList.add('hen-fly');
-            partEl.style.left = p.fixPos.left;
-            partEl.style.top  = p.fixPos.top;
-            PL.timer = setTimeout(() => {
-              partEl.classList.add('hen-fixed');
-              chime(true);
-              setSub('ミミ', HENSHIN_LINES.fixed.en, HENSHIN_LINES.fixed.jp);
-              playAudio('audio/henshin_fixed.mp3', HENSHIN_LINES.fixed.en, () => {
-                PL.timer = setTimeout(nextHenshinRound, 700);
-              });
-            }, 900);
-          });
+      // ④3択ボタン
+      const choiceWrap = document.createElement('div');
+      choiceWrap.className = 'hen-choices';
+      p.choices.forEach((c, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'hen-choice-btn';
+        btn.innerHTML = `<span class="choice-en">${c.en}</span><span class="choice-jp">${c.jp}</span>`;
+        btn.addEventListener('click', () => {
+          if (btn.dataset.done) return;
+          if (idx === p.correct) {
+            btn.dataset.done = '1';
+            chime(true);
+            btn.classList.add('choice-correct');
+            [...choiceWrap.children].forEach(b => { if (b !== btn) b.classList.add('choice-off'); });
+            hint.remove();
+            setSub('ミミ', p.a.en, p.a.jp);
+            playAudio(`audio/henshin_a_${pi}.mp3`, p.a.en, () => {
+              PL.timer = setTimeout(nextHenshinRound, 900);
+            });
+          } else {
+            chime(false);
+            btn.classList.remove('choice-wrong'); void btn.offsetWidth;
+            btn.classList.add('choice-wrong');
+          }
         });
+        choiceWrap.appendChild(btn);
       });
+      layer.appendChild(choiceWrap);
+
+      setSub('🔍', p.q.en, p.q.jp);
+      playAudio(`audio/henshin_q_${pi}.mp3`, p.q.en, null);
     }, 700);
   });
 }

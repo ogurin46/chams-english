@@ -443,7 +443,62 @@ h1 {
   filter: drop-shadow(0 2px 6px rgba(0,0,0,0.2));
 }
 
-/* ── へんしんマジック ── */
+/* ── へんしんマジック（新: 3択クイズ形式） ── */
+@keyframes witnessIn {
+  from { transform: scale(0.55) rotate(-6deg); opacity: 0; }
+  to   { transform: scale(1)    rotate(0deg);  opacity: 1; }
+}
+.hen-img-wrap {
+  position: absolute;
+  left: 50%; top: 4%;
+  transform: translateX(-50%);
+  width: 62%; max-width: 210px;
+  pointer-events: none;
+}
+.hen-wrong-img {
+  width: 100%; height: auto;
+  max-height: 48vh;
+  object-fit: contain;
+  filter: drop-shadow(0 5px 16px rgba(0,0,0,0.35));
+  animation: witnessIn 0.55s ease-out;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.82);
+}
+.hen-hint {
+  top: auto; bottom: 38%;
+}
+.hen-choices {
+  position: absolute;
+  left: 50%; bottom: 5%;
+  transform: translateX(-50%);
+  width: 92%;
+  display: flex; flex-direction: column; gap: 7px;
+  pointer-events: auto;
+}
+.hen-choice-btn {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 10px 16px;
+  background: rgba(255,255,255,0.94);
+  border: 2.5px solid var(--line);
+  border-radius: 14px;
+  cursor: pointer; font-family: inherit; color: var(--plum);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.14);
+  transition: transform 0.1s;
+  text-align: left;
+}
+.hen-choice-btn:active { transform: scale(0.96); }
+.choice-en { font-size: 0.95rem; font-weight: 900; color: #14522e; }
+.choice-jp { font-size: 0.72rem; font-weight: bold; color: var(--plum-l); white-space: nowrap; }
+.hen-choice-btn.choice-correct {
+  border-color: var(--gold);
+  background: #fffbe8;
+  box-shadow: 0 0 18px rgba(232,137,12,0.7);
+  animation: fixedPop 0.45s ease-out;
+}
+.hen-choice-btn.choice-wrong { animation: chamNo 0.4s ease-out; }
+.hen-choice-btn.choice-off { opacity: 0.3; pointer-events: none; }
+
+/* ── へんしんマジック（旧: 重ねるタイプ ── */
 .magic-flash {
   position: absolute; inset: 0;
   background: radial-gradient(circle, rgba(255,255,200,0.95), rgba(255,180,240,0.6), transparent);
