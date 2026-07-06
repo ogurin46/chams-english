@@ -352,6 +352,94 @@ const HENSHIN_PUZZLES = [
     ],
     correct: 2,
   },
+  { // p8: ライオン + うさぎのしっぽ
+    wrongImg: 'img/hen_p8.png',
+    q: { en: "What's wrong with this lion?",     jp: 'このライオン どこが へんかな？' },
+    a: { en: 'It has a rabbit tail!',            jp: 'うさぎのしっぽが ついてる！' },
+    choices: [
+      { en: 'sharp claws',  jp: 'するどいツメ'   },
+      { en: 'rabbit tail',  jp: 'うさぎのしっぽ' },
+      { en: 'big mane',     jp: 'おおきなたてがみ' },
+    ],
+    correct: 1,
+  },
+  { // p9: サル + とりのくちばし
+    wrongImg: 'img/hen_p9.png',
+    q: { en: "What's wrong with this monkey?",  jp: 'このサル どこが へんかな？' },
+    a: { en: 'It has a bird beak!',             jp: 'とりのくちばしが ついてる！' },
+    choices: [
+      { en: 'bird beak',  jp: 'とりのくちばし' },
+      { en: 'long arms',  jp: 'ながいうで'     },
+      { en: 'curly tail', jp: 'くるくるしっぽ' },
+    ],
+    correct: 0,
+  },
+  { // p10: ゾウ + ねこのミミ
+    wrongImg: 'img/hen_p10.png',
+    q: { en: "What's wrong with this elephant?", jp: 'このゾウ どこが へんかな？' },
+    a: { en: 'It has cat ears!',                 jp: 'ねこのミミが ついてる！' },
+    choices: [
+      { en: 'big tusks',    jp: 'おおきなキバ' },
+      { en: 'cat ears',     jp: 'ねこのミミ'   },
+      { en: 'wrinkly skin', jp: 'しわしわのかわ' },
+    ],
+    correct: 1,
+  },
+  { // p11: うし + キリンのくび
+    wrongImg: 'img/hen_p11.png',
+    q: { en: "What's wrong with this cow?",     jp: 'このうし どこが へんかな？' },
+    a: { en: 'It has a giraffe neck!',          jp: 'キリンのくびが ついてる！' },
+    choices: [
+      { en: 'spots',        jp: 'まだらもよう'   },
+      { en: 'horns',        jp: 'ツノ'           },
+      { en: 'giraffe neck', jp: 'キリンのくび'   },
+    ],
+    correct: 2,
+  },
+  { // p12: ひつじ + ゾウのはな
+    wrongImg: 'img/hen_p12.png',
+    q: { en: "What's wrong with this sheep?",   jp: 'このひつじ どこが へんかな？' },
+    a: { en: 'It has an elephant trunk!',       jp: 'ゾウのはなが ついてる！' },
+    choices: [
+      { en: 'elephant trunk', jp: 'ゾウのはな'   },
+      { en: 'woolly coat',    jp: 'もふもふのけ' },
+      { en: 'four legs',      jp: 'よんほんのあし' },
+    ],
+    correct: 0,
+  },
+  { // p13: カバ + うさぎのミミ
+    wrongImg: 'img/hen_p13.png',
+    q: { en: "What's wrong with this hippo?",   jp: 'このカバ どこが へんかな？' },
+    a: { en: 'It has bunny ears!',              jp: 'うさぎのミミが ついてる！' },
+    choices: [
+      { en: 'round body',  jp: 'まるいからだ'   },
+      { en: 'bunny ears',  jp: 'うさぎのミミ'   },
+      { en: 'wide mouth',  jp: 'おおきなくち'   },
+    ],
+    correct: 1,
+  },
+  { // p14: うま + とりのはね
+    wrongImg: 'img/hen_p14.png',
+    q: { en: "What's wrong with this horse?",   jp: 'このうま どこが へんかな？' },
+    a: { en: 'It has bird wings!',              jp: 'とりのはねが ついてる！' },
+    choices: [
+      { en: 'horse mane', jp: 'たてがみ'     },
+      { en: 'long tail',  jp: 'ながいしっぽ' },
+      { en: 'bird wings', jp: 'とりのはね'   },
+    ],
+    correct: 2,
+  },
+  { // p15: ワニ + ちょうのはね
+    wrongImg: 'img/hen_p15.png',
+    q: { en: "What's wrong with this crocodile?", jp: 'このワニ どこが へんかな？' },
+    a: { en: 'It has butterfly wings!',           jp: 'ちょうのはねが ついてる！' },
+    choices: [
+      { en: 'butterfly wings', jp: 'ちょうのはね' },
+      { en: 'green scales',    jp: 'みどりのウロコ' },
+      { en: 'long tail',       jp: 'ながいしっぽ'   },
+    ],
+    correct: 0,
+  },
 ];
 
 // ═══════════════════════════════════════════════════════════

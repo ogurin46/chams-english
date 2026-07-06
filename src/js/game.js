@@ -418,12 +418,22 @@ function replayScene() {
   renderScene(true);
 }
 
+function updateChoiceSubMode() {
+  document.querySelectorAll('.hen-choice-btn').forEach(btn => {
+    btn.querySelector('.choice-en')?.classList.toggle('hidden', S.subMode === 'jp');
+    btn.querySelector('.choice-jp')?.classList.toggle('hidden', S.subMode === 'en');
+  });
+}
+
 function cycleSubMode() {
   S.subMode = S.subMode === 'en' ? 'both' : S.subMode === 'both' ? 'jp' : 'en';
   save();
   updateSubModeBtn();
-  const line = scene().lines[Math.min(PL.li, scene().lines.length - 1)];
-  if (line) renderSubtitle(line, false);
+  if (PL.mode === 'story') {
+    const line = scene().lines[Math.min(PL.li, scene().lines.length - 1)];
+    if (line) renderSubtitle(line, false);
+  }
+  updateChoiceSubMode();
 }
 function updateSubModeBtn() {
   $('btn-submode').textContent =
@@ -448,7 +458,7 @@ let HS = { rounds:[], ri:0 };
 
 function startHenshin() {
   PL = { ...PL, mode:'henshin', playing:true };
-  HS = { rounds:[...HENSHIN_PUZZLES.keys()].sort(() => Math.random() - 0.5).slice(0, 5), ri:0 };
+  HS = { rounds:[...HENSHIN_PUZZLES.keys()].sort(() => Math.random() - 0.5).slice(0, 6), ri:0 };
   showScreen('player');
   $('player-title').textContent = '🪄 へんしんマジック';
   updateSubModeBtn(); updateRepeatBtn(); updatePlayBtn();
@@ -526,6 +536,7 @@ function renderHenshinRound() {
         choiceWrap.appendChild(btn);
       });
       layer.appendChild(choiceWrap);
+      updateChoiceSubMode();
 
       setSub('🔍', p.q.en, p.q.jp);
       playAudio(`audio/henshin_q_${pi}.mp3`, p.q.en, null);

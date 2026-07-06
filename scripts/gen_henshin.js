@@ -50,6 +50,22 @@ const IMG_PROMPTS = [
   'cute chibi green frog with long brown horse legs with hooves instead of short stubby frog legs, horse hooves clearly visible at bottom, bright kawaii anime style for young children, thick black outlines, pure white background, full body visible, funny expression',
   // p7: パンダ + ゾウのミミ
   'cute chibi black and white panda standing with huge grey floppy elephant ears on both sides of its head, elephant ears very large and prominent, bright kawaii anime style for young children, thick black outlines, pure white background, full body visible',
+  // p8: ライオン + うさぎのしっぽ
+  'cute chibi golden lion standing proudly with a tiny fluffy white rabbit pompom tail on its behind, the small rabbit tail looks very silly next to the big mane, bright kawaii anime style for young children, thick black outlines, pure white background, full body visible',
+  // p9: サル + とりのくちばし
+  'cute chibi brown monkey standing with a bright yellow bird beak on its face instead of a normal mouth, the beak is clearly visible and funny, bright kawaii anime style for young children, thick black outlines, pure white background, full body visible',
+  // p10: ゾウ + ねこのミミ
+  'cute chibi large grey elephant with tiny pointy orange cat ears on top of its head instead of big elephant ears, the small cat ears look absurd on the big elephant, bright kawaii anime style for young children, thick black outlines, pure white background, full body visible',
+  // p11: うし + キリンのくび
+  'cute chibi black and white spotted cow with an extremely long yellow giraffe neck with brown spots stretching way up high, bright kawaii anime style for young children, thick black outlines, pure white background, full body visible',
+  // p12: ひつじ + ゾウのはな
+  'cute chibi fluffy white sheep standing with a long grey elephant trunk on its face instead of a small nose, the trunk is very prominent, bright kawaii anime style for young children, thick black outlines, pure white background, full body visible',
+  // p13: カバ + うさぎのミミ
+  'cute chibi round grey hippo standing with very long white rabbit ears on top of its small head, the bunny ears are much taller than the hippo itself, bright kawaii anime style for young children, thick black outlines, pure white background, full body visible',
+  // p14: うま + とりのはね
+  'cute chibi brown horse standing with large colorful bird wings sprouting from its back, wings spread wide with feathers clearly visible, bright kawaii anime style for young children, thick black outlines, pure white background, full body visible',
+  // p15: ワニ + ちょうのはね
+  'cute chibi green crocodile standing upright with large beautiful butterfly wings on its back, wings have colorful patterns and are very visible, bright kawaii anime style for young children, thick black outlines, pure white background, full body visible',
 ];
 
 const CHAR_STYLE_SUFFIX =
