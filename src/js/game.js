@@ -77,12 +77,48 @@ function renderTitle() {
   $('overlay-phrases').classList.add('hidden');
 }
 
-// ─── 本棚（おはなし選択） ───
+// ─── 本棚（2段階選択） ───
 function renderShelf() {
   showScreen('shelf');
   $('overlay-finish').classList.add('hidden');
   const total = Object.values(S.done).reduce((a, b) => a + b, 0);
   $('shelf-stars').textContent = `⭐×${total}`;
+  $('shelf-title').textContent = '🎮 あそびを えらんでね';
+  $('btn-shelf-back').classList.add('hidden');
+  renderModeSelect();
+}
+
+function renderModeSelect() {
+  const list = $('story-list');
+  list.innerHTML = '';
+  const modes = [
+    { id:'story',   emoji:'📖', en:'Story Time',        jp:'おはなし',
+      desc:'ものがたりを きいて えいごに なれよう！' },
+    { id:'henshin', emoji:'🪄', en:"What's Wrong?",     jp:'へんしんマジック',
+      desc:'まほうが しっぱい！おかしいところを さがそう！' },
+    { id:'shop',    emoji:'🏪', en:'Welcome to Shop!',  jp:'おみせやさん',
+      desc:'みせに くるお きゃくさんを おもてなし しよう！' },
+  ];
+  modes.forEach(m => {
+    const card = document.createElement('button');
+    card.className = 'mode-card';
+    card.innerHTML = `
+      <span class="mode-emoji">${m.emoji}</span>
+      <span class="mode-info">
+        <span class="mode-title-en">${m.en}</span>
+        <span class="mode-title-jp">${m.jp}</span>
+        <span class="mode-desc">${m.desc}</span>
+      </span>
+      <span class="mode-arrow">▶</span>`;
+    card.addEventListener('click', () => { unlockAudio(); renderModeInner(m.id); });
+    list.appendChild(card);
+  });
+}
+
+function renderModeInner(mode) {
+  const titles = { story:'📖 おはなし', henshin:'🪄 へんしんマジック', shop:'🏪 おみせやさん' };
+  $('shelf-title').textContent = titles[mode];
+  $('btn-shelf-back').classList.remove('hidden');
 
   const list = $('story-list');
   list.innerHTML = '';
@@ -90,63 +126,53 @@ function renderShelf() {
     const n = S.done[key] || 0;
     return n ? '⭐'.repeat(Math.min(n, 3)) + (n > 3 ? `×${n}` : '') : '';
   };
-  const addSection = (title) => {
-    const h = document.createElement('p');
-    h.className = 'shelf-section';
-    h.textContent = title;
-    list.appendChild(h);
-  };
 
-  // ── 紙芝居 ──
-  addSection('📖 おはなし');
-  STORIES.forEach((st, si) => {
+  if (mode === 'story') {
+    STORIES.forEach((st, si) => {
+      const card = document.createElement('button');
+      card.className = 'story-card';
+      card.innerHTML = `
+        <span class="story-emoji">${st.emoji}</span>
+        <span class="story-info">
+          <span class="story-title-en">${st.title}</span>
+          <span class="story-title-jp">${st.jpTitle}</span>
+          <span class="story-learn">${st.learn.map(l => `<i>${l}</i>`).join('')}</span>
+        </span>
+        <span class="story-stars">${starsOf(st.id)}</span>`;
+      card.addEventListener('click', () => { unlockAudio(); startStory(si); });
+      list.appendChild(card);
+    });
+  } else if (mode === 'henshin') {
     const card = document.createElement('button');
     card.className = 'story-card';
     card.innerHTML = `
-      <span class="story-emoji">${st.emoji}</span>
+      <span class="story-emoji">🪄</span>
       <span class="story-info">
-        <span class="story-title-en">${st.title}</span>
-        <span class="story-title-jp">${st.jpTitle}</span>
-        <span class="story-learn">${st.learn.map(l => `<i>${l}</i>`).join('')}</span>
+        <span class="story-title-en">What's Wrong?</span>
+        <span class="story-title-jp">まほうが しっぱい！おかしいところを さがそう</span>
+        <span class="story-learn"><i>Where is the tail?</i><i>ears</i><i>nose</i><i>feet</i></span>
       </span>
-      <span class="story-stars">${starsOf(st.id)}</span>`;
-    card.addEventListener('click', () => { unlockAudio(); startStory(si); });
+      <span class="story-stars">${starsOf('henshin')}</span>`;
+    card.addEventListener('click', () => { unlockAudio(); startHenshin(); });
     list.appendChild(card);
-  });
-
-  // ── へんしんマジック ──
-  addSection('🪄 へんしんマジック');
-  const hCard = document.createElement('button');
-  hCard.className = 'story-card';
-  hCard.innerHTML = `
-    <span class="story-emoji">🪄</span>
-    <span class="story-info">
-      <span class="story-title-en">What's Wrong?</span>
-      <span class="story-title-jp">まほうが しっぱい！おかしいところを さがそう</span>
-      <span class="story-learn"><i>Where is the tail?</i><i>ears</i><i>nose</i><i>feet</i></span>
-    </span>
-    <span class="story-stars">${starsOf('henshin')}</span>`;
-  hCard.addEventListener('click', () => { unlockAudio(); startHenshin(); });
-  list.appendChild(hCard);
-
-  // ── おみせやさん ──
-  addSection('🏪 おみせやさん');
-  SHOP_EPISODES.forEach((ep, ei) => {
-    const cust = SHOP_CUSTOMERS[ep.customer];
-    const card = document.createElement('button');
-    card.className = 'story-card';
-    card.innerHTML = `
-      <img src="${cust.img}" class="story-cust-img" alt=""
-           onerror="this.outerHTML='<span class=story-emoji>${ep.emoji}</span>'">
-      <span class="story-info">
-        <span class="story-title-en">Welcome, ${cust.en}!</span>
-        <span class="story-title-jp">だい${ei + 1}わ ${cust.name}が くる（${ep.themeJp}）</span>
-        <span class="story-learn"><i>What would you like?</i><i>I'd like ~, please!</i></span>
-      </span>
-      <span class="story-stars">${starsOf(ep.id)}</span>`;
-    card.addEventListener('click', () => { unlockAudio(); startShop(ei); });
-    list.appendChild(card);
-  });
+  } else if (mode === 'shop') {
+    SHOP_EPISODES.forEach((ep, ei) => {
+      const cust = SHOP_CUSTOMERS[ep.customer];
+      const card = document.createElement('button');
+      card.className = 'story-card';
+      card.innerHTML = `
+        <img src="${cust.img}" class="story-cust-img" alt=""
+             onerror="this.outerHTML='<span class=story-emoji>${ep.emoji}</span>'">
+        <span class="story-info">
+          <span class="story-title-en">Welcome, ${cust.en}!</span>
+          <span class="story-title-jp">だい${ei + 1}わ ${cust.name}が くる（${ep.themeJp}）</span>
+          <span class="story-learn"><i>What would you like?</i><i>I'd like ~, please!</i></span>
+        </span>
+        <span class="story-stars">${starsOf(ep.id)}</span>`;
+      card.addEventListener('click', () => { unlockAudio(); startShop(ei); });
+      list.appendChild(card);
+    });
+  }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -746,6 +772,12 @@ function showPhrases() {
 // ─── イベント ───
 function initEvents() {
   $('screen-title').addEventListener('click', () => { unlockAudio(); renderShelf(); });
+
+  $('btn-shelf-back').onclick = () => {
+    $('shelf-title').textContent = '🎮 あそびを えらんでね';
+    $('btn-shelf-back').classList.add('hidden');
+    renderModeSelect();
+  };
 
   $('btn-player-close').onclick = () => { renderShelf(); };
   $('btn-playpause').onclick    = togglePlay;

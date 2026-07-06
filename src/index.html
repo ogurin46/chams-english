@@ -8,7 +8,7 @@
   <meta name="theme-color" content="#2f7d4f">
   <link rel="apple-touch-icon" href="img/icon-192.png">
   <title>チャムズと えいごの おはなし</title>
-  <link rel="stylesheet" href="style.css?v=3">
+  <link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
 <div id="app">
@@ -34,8 +34,9 @@
   <!-- ② 本棚（おはなし選択） -->
   <section id="screen-shelf" class="screen hidden">
     <div class="shelf-header">
+      <button id="btn-shelf-back" class="ctrl-btn shelf-back hidden">◀</button>
       <img src="img/heroine_face.png" class="shelf-face" alt="">
-      <h2 class="shelf-title">📚 おはなしを えらんでね</h2>
+      <h2 id="shelf-title" class="shelf-title">🎮 あそびを えらんでね</h2>
       <span id="shelf-stars" class="shelf-stars"></span>
     </div>
     <div id="story-list"></div>
@@ -107,7 +108,7 @@
   </div>
 
 </div>
-<script src="js/data.js?v=3"></script>
-<script src="js/game.js?v=3"></script>
+<script src="js/data.js?v=4"></script>
+<script src="js/game.js?v=4"></script>
 </body>
 </html>
