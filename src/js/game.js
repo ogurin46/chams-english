@@ -332,6 +332,8 @@ function renderSubtitle(line, talking) {
   const subEn = $('sub-en'), subJp = $('sub-jp'), who = $('sub-who');
   const cast = CAST[line.who] || CAST.narrator;
   who.textContent = line.who === 'narrator' ? '📖' : cast.name;
+  subEn.dataset.full = line.en;
+  subJp.dataset.full = line.jp;
   subEn.textContent = S.subMode !== 'jp'  ? line.en : '';
   subJp.textContent = S.subMode !== 'en'  ? line.jp : '';
   subEn.classList.toggle('hidden', S.subMode === 'jp');
@@ -429,10 +431,12 @@ function cycleSubMode() {
   S.subMode = S.subMode === 'en' ? 'both' : S.subMode === 'both' ? 'jp' : 'en';
   save();
   updateSubModeBtn();
-  if (PL.mode === 'story') {
-    const line = scene().lines[Math.min(PL.li, scene().lines.length - 1)];
-    if (line) renderSubtitle(line, false);
-  }
+  // 字幕を現在の subMode で再適用（全モード共通）
+  const subEn = $('sub-en'), subJp = $('sub-jp');
+  subEn.textContent = S.subMode !== 'jp' ? (subEn.dataset.full || '') : '';
+  subJp.textContent = S.subMode !== 'en' ? (subJp.dataset.full || '') : '';
+  subEn.classList.toggle('hidden', S.subMode === 'jp');
+  subJp.classList.toggle('hidden', S.subMode === 'en');
   updateChoiceSubMode();
 }
 function updateSubModeBtn() {
@@ -502,13 +506,7 @@ function renderHenshinRound() {
       imgWrap.innerHTML = `<img src="${p.wrongImg}" class="hen-wrong-img" alt="">`;
       layer.appendChild(imgWrap);
 
-      // ③「どれが へんかな？」ヒント
-      const hint = document.createElement('div');
-      hint.className = 'seek-hint hen-hint';
-      hint.textContent = '👆 どれが へんかな？ タップして えらんでね！';
-      layer.appendChild(hint);
-
-      // ④3択ボタン
+      // ③3択ボタン
       const choiceWrap = document.createElement('div');
       choiceWrap.className = 'hen-choices';
       p.choices.forEach((c, idx) => {
@@ -522,7 +520,6 @@ function renderHenshinRound() {
             chime(true);
             btn.classList.add('choice-correct');
             [...choiceWrap.children].forEach(b => { if (b !== btn) b.classList.add('choice-off'); });
-            hint.remove();
             setSub('ミミ', p.a.en, p.a.jp);
             playAudio(`audio/henshin_a_${pi}.mp3`, p.a.en, () => {
               PL.timer = setTimeout(nextHenshinRound, 900);
@@ -684,6 +681,8 @@ function runShopStep() {
 function setSub(label, en, jp) {
   $('sub-who').textContent = label;
   const subEn = $('sub-en'), subJp = $('sub-jp');
+  subEn.dataset.full = en;
+  subJp.dataset.full = jp;
   subEn.textContent = S.subMode !== 'jp' ? en : '';
   subJp.textContent = S.subMode !== 'en' ? jp : '';
   subEn.classList.toggle('hidden', S.subMode === 'jp');
