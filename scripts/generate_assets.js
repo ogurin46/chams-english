@@ -65,6 +65,7 @@ Object.entries(FIND_LINES).forEach(([key, l]) => {
   CLIPS.push({ file:`here_${key}.mp3`, text:here.en, voice });
 });
 STORIES.forEach((story, si) => {
+  if (story.bilingual) return; // バイリンガル絵本は gen_story4.js で個別生成
   story.scenes.forEach((scene, ci) => {
     scene.lines.forEach((line, li) => {
       CLIPS.push({

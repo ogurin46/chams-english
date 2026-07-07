@@ -216,6 +216,74 @@ const STORIES = [
       },
     ],
   },
+
+  // ─────────── おはなし4 ───────────
+  {
+    id:'adventure', title:'What Is It?', jpTitle:'なに？なに？なに！',
+    emoji:'🌿', bilingual:true,
+    learn:['Look!', "What is it?", "It's a ___!", 'So beautiful!'],
+    scenes:[
+      {
+        bg:'bg_morning',
+        left:['heroine'], right:['riku','mimi'], prop:'✨',
+        lines:[
+          { who:'narrator', en:'One sunny morning in the forest...', jp:'ある はれた あさ、もりのなかで…' },
+          { who:'riku',     en:"Let's go on an adventure!",          jp:'ぼうけんに でかけよう！' },
+          { who:'heroine',  en:"Yes! Let's go!",                    jp:'うん！いこう！' },
+          { who:'mimi',     en:"Let's find something new!",          jp:'あたらしいものを みつけよう！' },
+        ],
+      },
+      {
+        bg:'bg_s4_1',
+        left:['heroine'], right:['rabbit'], prop:'', hide:'rabbit',
+        lines:[
+          { who:'heroine', en:'Look! What is it?',        jp:'みて！なんだろう？' },
+          { who:'rabbit',  en:"It's me! Hello!",          jp:'わたしだよ！こんにちは！' },
+          { who:'heroine', en:'A rabbit! Hello, Rabbit!', jp:'うさちゃんだ！こんにちは！' },
+          { who:'rabbit',  en:'The forest is this way!',  jp:'もりは こっちだよ！' },
+        ],
+      },
+      {
+        bg:'bg_s4_2',
+        left:['heroine'], right:['bird'], prop:'💧', hide:'bird',
+        lines:[
+          { who:'heroine', en:'Wow! What is that?',         jp:'わぁ！あれはなに？' },
+          { who:'bird',    en:"It's a lake! Big and blue!", jp:'みずうみだよ！おおきくて あおいね！' },
+          { who:'heroine', en:'So beautiful! I love it!',  jp:'きれい！だいすき！' },
+        ],
+      },
+      {
+        bg:'bg_flower',
+        left:['heroine'], right:['cat'], prop:'🌸', hide:'cat',
+        lines:[
+          { who:'heroine', en:'Oh! Look over there!',          jp:'あ！あそこを みて！' },
+          { who:'cat',     en:'Hello! I am hiding!',           jp:'こんにちは！かくれていたよ！' },
+          { who:'heroine', en:'Ha ha! I found you, Cat!',     jp:'あははっ！みつけたよ、ねこちゃん！' },
+          { who:'cat',     en:'These flowers are so pretty!', jp:'このおはな、とっても きれいでしょ！' },
+        ],
+      },
+      {
+        bg:'bg_s4_3',
+        left:['heroine'], right:['bear'], prop:'', hide:'bear',
+        lines:[
+          { who:'heroine', en:'Wow! A big tree!',              jp:'わぁ！おおきなきだ！' },
+          { who:'bear',    en:'And I am behind it! Surprise!', jp:'ぼくはそのうしろにいたよ！サプライズ！' },
+          { who:'heroine', en:'Bear! You surprised me!',       jp:'クマくん！びっくりしたよ！' },
+          { who:'bear',    en:'Ha ha! The forest is big!',     jp:'あははっ！もりっておおきいでしょ！' },
+        ],
+      },
+      {
+        bg:'bg_morning',
+        left:['heroine','rabbit','cat'], right:['riku','paku','mimi'], prop:'🎉',
+        lines:[
+          { who:'heroine',  en:'We found so many things!',       jp:'たくさんのものを みつけたね！' },
+          { who:'riku',     en:'A rabbit, a lake, and flowers!', jp:'うさちゃん、みずうみ、おはな！' },
+          { who:'mimi',     en:'And a cat and a big bear!',      jp:'それに ねこちゃんと おおきいクマも！' },
+          { who:'narrator', en:'What a wonderful adventure!',    jp:'なんて すてきな ぼうけんでしょう！' },
+        ],
+      },
+    ],
+  },
 ];
 
 // ─── かくれんぼ の こえ ───

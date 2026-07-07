@@ -352,7 +352,10 @@ function playLine() {
   renderSubtitle(line, true);
   $('repeat-prompt').classList.add('hidden');
 
-  playAudio(lineAudioPath(PL.si, PL.ci, PL.li), line.en, () => {
+  const st = story();
+  const base = `audio/s${PL.si + 1}_${PL.ci}_${PL.li}`;
+
+  function afterSpoken() {
     document.querySelectorAll('.stage-char').forEach(el => el.classList.remove('talking'));
     if (!PL.playing) return;
     // まねっこモード: ナレーション以外のセリフの後に「言ってみよう」タイム
@@ -366,7 +369,24 @@ function playLine() {
     } else {
       PL.timer = setTimeout(() => { PL.li++; playLine(); }, 700);
     }
-  });
+  }
+
+  if (st.bilingual) {
+    // バイリンガル絵本: JP モードのみ日本語音声、それ以外は英語音声
+    if (S.subMode === 'jp') {
+      playAudio(`${base}_jp.mp3`, line.jp, afterSpoken);
+    } else if (S.subMode === 'both') {
+      // BOTH: 英語音声 → 日本語音声 の順に再生
+      playAudio(`${base}_en.mp3`, line.en, () => {
+        if (!PL.playing) { afterSpoken(); return; }
+        playAudio(`${base}_jp.mp3`, line.jp, afterSpoken);
+      });
+    } else {
+      playAudio(`${base}_en.mp3`, line.en, afterSpoken);
+    }
+  } else {
+    playAudio(lineAudioPath(PL.si, PL.ci, PL.li), line.en, afterSpoken);
+  }
 }
 
 function onSceneEnd() {
@@ -747,7 +767,10 @@ function buildPhraseList() {
   const map = new Map();
   STORIES.forEach((st, si) => st.scenes.forEach((sc, ci) => sc.lines.forEach((l, li) => {
     if (l.who === 'narrator') return;
-    if (!map.has(l.en)) map.set(l.en, { en:l.en, jp:l.jp, src:lineAudioPath(si, ci, li) });
+    const src = st.bilingual
+      ? `audio/s${si + 1}_${ci}_${li}_en.mp3`
+      : lineAudioPath(si, ci, li);
+    if (!map.has(l.en)) map.set(l.en, { en:l.en, jp:l.jp, src });
   })));
   return [...map.values()];
 }
