@@ -217,15 +217,14 @@ const STORIES = [
     ],
   },
 
-  // ─────────── おはなし4 ───────────
+  // ─────────── おはなし4（絵本モード） ───────────
   {
     id:'adventure', title:'What Is It?', jpTitle:'なに？なに？なに！',
-    emoji:'🌿', bilingual:true,
+    emoji:'🌿', bilingual:true, bookMode:true,
     learn:['Look!', "What is it?", "It's a ___!", 'So beautiful!'],
     scenes:[
       {
-        bg:'bg_morning',
-        left:['heroine'], right:['riku','mimi'], prop:'✨',
+        pageImg:'img/book4_p1.png', bg:'bg_morning',
         lines:[
           { who:'narrator', en:'One sunny morning in the forest...', jp:'ある はれた あさ、もりのなかで…' },
           { who:'riku',     en:"Let's go on an adventure!",          jp:'ぼうけんに でかけよう！' },
@@ -234,8 +233,7 @@ const STORIES = [
         ],
       },
       {
-        bg:'bg_s4_1',
-        left:['heroine'], right:['rabbit'], prop:'', hide:'rabbit',
+        pageImg:'img/book4_p2.png', bg:'bg_s4_1',
         lines:[
           { who:'heroine', en:'Look! What is it?',        jp:'みて！なんだろう？' },
           { who:'rabbit',  en:"It's me! Hello!",          jp:'わたしだよ！こんにちは！' },
@@ -244,8 +242,7 @@ const STORIES = [
         ],
       },
       {
-        bg:'bg_s4_2',
-        left:['heroine'], right:['bird'], prop:'💧', hide:'bird',
+        pageImg:'img/book4_p3.png', bg:'bg_s4_2',
         lines:[
           { who:'heroine', en:'Wow! What is that?',         jp:'わぁ！あれはなに？' },
           { who:'bird',    en:"It's a lake! Big and blue!", jp:'みずうみだよ！おおきくて あおいね！' },
@@ -253,8 +250,7 @@ const STORIES = [
         ],
       },
       {
-        bg:'bg_flower',
-        left:['heroine'], right:['cat'], prop:'🌸', hide:'cat',
+        pageImg:'img/book4_p4.png', bg:'bg_flower',
         lines:[
           { who:'heroine', en:'Oh! Look over there!',          jp:'あ！あそこを みて！' },
           { who:'cat',     en:'Hello! I am hiding!',           jp:'こんにちは！かくれていたよ！' },
@@ -263,8 +259,7 @@ const STORIES = [
         ],
       },
       {
-        bg:'bg_s4_3',
-        left:['heroine'], right:['bear'], prop:'', hide:'bear',
+        pageImg:'img/book4_p5.png', bg:'bg_s4_3',
         lines:[
           { who:'heroine', en:'Wow! A big tree!',              jp:'わぁ！おおきなきだ！' },
           { who:'bear',    en:'And I am behind it! Surprise!', jp:'ぼくはそのうしろにいたよ！サプライズ！' },
@@ -273,8 +268,7 @@ const STORIES = [
         ],
       },
       {
-        bg:'bg_morning',
-        left:['heroine','rabbit','cat'], right:['riku','paku','mimi'], prop:'🎉',
+        pageImg:'img/book4_p6.png', bg:'bg_morning',
         lines:[
           { who:'heroine',  en:'We found so many things!',       jp:'たくさんのものを みつけたね！' },
           { who:'riku',     en:'A rabbit, a lake, and flowers!', jp:'うさちゃん、みずうみ、おはな！' },

@@ -216,42 +216,68 @@ function renderScene(andPlay) {
   clearTimeout(PL.timer);
   stopAudio();
   const sc = scene();
+  const st = story();
   const stage = $('stage');
+
+  // 次ページボタンを隠す
+  $('book-next-btn').classList.add('hidden');
 
   // ページめくり演出
   stage.classList.remove('page-flip');
   void stage.offsetWidth;
   stage.classList.add('page-flip');
 
-  $('stage-bg').src = `img/${sc.bg}.png`;
-  $('player-title').textContent = `${story().emoji} ${story().title}`;
+  if (st.bookMode && sc.pageImg) {
+    // 絵本モード: 1枚絵をフルスクリーン表示、スプライト非表示
+    stage.classList.add('book-mode');
+    $('stage-bg').src = sc.pageImg;
+    $('chars-left').innerHTML  = '';
+    $('chars-right').innerHTML = '';
+    $('stage-prop').textContent = '';
+  } else {
+    stage.classList.remove('book-mode');
+    $('stage-bg').src = `img/${sc.bg}.png`;
+    // キャラクター配置
+    const mkChars = (keys, side) => keys.map(k => {
+      const c = CAST[k];
+      return c && c.img ? `<img src="${c.img}" class="stage-char char-${side}" data-who="${k}" alt="${c.name}">` : '';
+    }).join('');
+    $('chars-left').innerHTML  = mkChars(sc.left  || [], 'left');
+    $('chars-right').innerHTML = mkChars(sc.right || [], 'right');
+    $('stage-prop').textContent = sc.prop || '';
+  }
+
+  $('player-title').textContent = `${st.emoji} ${st.title}`;
 
   // シーンドット
-  $('scene-dots').innerHTML = story().scenes.map((_, i) =>
+  $('scene-dots').innerHTML = st.scenes.map((_, i) =>
     `<span class="dot ${i === PL.ci ? 'dot-on' : i < PL.ci ? 'dot-done' : ''}"></span>`).join('');
 
-  // かくれんぼシーンなら、まず「さがす」フェーズから
+  // かくれんぼ（bookMode ではスキップ）
   $('seek-layer').innerHTML = '';
-  if (sc.hide && PL.phase !== 'talk-after-seek') {
+  if (!st.bookMode && sc.hide && PL.phase !== 'talk-after-seek') {
     PL.phase = 'seek';
     renderSeek(sc);
     return;
   }
   PL.phase = 'talk';
 
-  // キャラクター配置
-  const mkChars = (keys, side) => keys.map(k => {
-    const c = CAST[k];
-    return c && c.img ? `<img src="${c.img}" class="stage-char char-${side}" data-who="${k}" alt="${c.name}">` : '';
-  }).join('');
-  $('chars-left').innerHTML  = mkChars(sc.left  || [], 'left');
-  $('chars-right').innerHTML = mkChars(sc.right || [], 'right');
-  $('stage-prop').textContent = sc.prop || '';
-
   $('repeat-prompt').classList.add('hidden');
   PL.li = 0;
   if (andPlay && PL.playing) PL.timer = setTimeout(() => playLine(), 700);
   else renderSubtitle(sc.lines[0], false);
+}
+
+// 絵本モード: 次ページへ進む
+function advanceBook() {
+  $('book-next-btn').classList.add('hidden');
+  if (PL.ci < story().scenes.length - 1) {
+    PL.ci++;
+    PL.phase = 'talk';
+    renderScene(true);
+  } else {
+    finishStory();
+  }
 }
 
 // ─── かくれんぼ（さがすフェーズ） ───
@@ -390,9 +416,16 @@ function playLine() {
 }
 
 function onSceneEnd() {
-  if (PL.ci < story().scenes.length - 1) {
+  const st = story();
+  if (st.bookMode) {
+    // 絵本モード: タップで次ページへ
+    const isLast = PL.ci >= st.scenes.length - 1;
+    const btn = $('book-next-btn');
+    btn.textContent = isLast ? '🎉 おわり' : '▶ つぎのページ';
+    btn.classList.remove('hidden');
+  } else if (PL.ci < st.scenes.length - 1) {
     PL.ci++;
-    PL.phase = 'talk'; // 次のシーンが かくれんぼなら また さがすところから
+    PL.phase = 'talk';
     PL.timer = setTimeout(() => renderScene(true), 500);
   } else {
     finishStory();
@@ -811,6 +844,7 @@ function initEvents() {
   $('btn-replay').onclick       = replayScene;
   $('btn-submode').onclick      = cycleSubMode;
   $('btn-repeatmode').onclick   = toggleRepeatMode;
+  $('book-next-btn').onclick    = () => { unlockAudio(); advanceBook(); };
 
   $('btn-finish-again').onclick = () => {
     $('overlay-finish').classList.add('hidden');
